@@ -1,23 +1,152 @@
-'use client'
+"use client";
 
-import { useState, useRef, useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { useChat } from 'ai/react'
-import { Send } from 'lucide-react'
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import axios from "axios";
+import { Send } from "lucide-react";
 
 export default function AIAgent() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: '/api/chat',
-  })
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  type Message = {
+    role: "user" | "assistant";
+    content: string;
+  };
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+  const [firstMessage, setFirstMessage] = useState("");
+  const [sessionId, setSessionId] = useState("");
+  const [dataRetrieved, setDataRetrieved] = useState({
+    hasContext: true,
+    hasVoted: false,
+    providingDetails: false,
+    textResponse: "",
+  });
+
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  useEffect(scrollToBottom, [messages])
+  const startConversation = async () => {
+    try {
+      const response = await fetch("/api/votes/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          start: true,
+          lng: "es",
+          sessionId: "",
+          userMessage: "",
+        }),
+      });
+      const messageReceived = await response.json();
+      setSessionId(messageReceived["sessionId"]);
+
+      const cleanedMessage = messageReceived["message"];
+      console.log("Mensaje recibido (limpio):", cleanedMessage);
+
+      try {
+        const sanitizedMessage = cleanedMessage
+          .replace(/[\x00-\x1F\x7F]/g, "")
+          .replace(/\n/g, "\\n");
+
+        const javascriptMessage = JSON.parse(sanitizedMessage);
+        console.log("Mensaje parseado:", javascriptMessage);
+        const textResponse = javascriptMessage.textResponse;
+        console.log("textResponse:", textResponse);
+        setMessages([{ role: "assistant", content: textResponse }]);
+        setDataRetrieved(javascriptMessage);
+      } catch (parseError) {
+        console.error(
+          "Error al parsear el JSON. Mensaje original:",
+          cleanedMessage
+        );
+      }
+    } catch (err) {
+      console.error("Error en startConversation:", err);
+    }
+  };
+
+  const continueConversation = async (userMessage: string) => {
+    try {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "user", content: userMessage },
+      ]);
+
+      console.log("Session Id:" + sessionId);
+      const response = await fetch("/api/votes/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          start: false,
+          lng: "es",
+          sessionId: sessionId,
+          userMessage: userMessage,
+        }),
+      });
+
+      const messageReceived = await response.json();
+      setSessionId(messageReceived["sessionId"]);
+
+      const cleanedMessage = messageReceived["message"];
+      console.log("Mensaje recibido (limpio):", cleanedMessage);
+
+      try {
+        const sanitizedMessage = cleanedMessage
+          .replace(/[\x00-\x1F\x7F]/g, "")
+          .replace(/\n/g, "\\n");
+
+        const javascriptMessage = JSON.parse(sanitizedMessage);
+        const textResponse = javascriptMessage.textResponse;
+        setDataRetrieved(javascriptMessage);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { role: "assistant", content: textResponse },
+        ]);
+      } catch (parseError) {
+        console.error(
+          "Error al parsear el JSON. Mensaje original:",
+          cleanedMessage
+        );
+      }
+
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() !== "") {
+      console.log("Mensaje: " + input.trim());
+      continueConversation(input.trim());
+    }
+  };
+
+  // Efecto para hacer scroll automático
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await startConversation();
+    };
+    fetchData();
+  }, []);
 
   return (
     <Card className="bg-gray-900 border-[#f7cf1d] h-[600px] flex flex-col">
@@ -25,16 +154,19 @@ export default function AIAgent() {
         <CardTitle className="text-[#f7cf1d]">AI Voting Assistant</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-y-auto mb-4 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-gray-400 text-center">
-            Ask me anything about the candidates or the voting process!
-          </div>
-        )}
-        {messages.map(m => (
-          <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`p-2 rounded-lg max-w-[80%] ${m.role === 'user' ? 'bg-[#f7cf1d] text-black' : 'bg-gray-700 text-white'}`}>
-              <p>{m.content}</p>
-            </div>
+        <div className="text-gray-400 text-center">
+          Ask me anything about the candidates or the voting process!
+        </div>
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`p-2 rounded-lg max-w-[80%] ${
+              message.role === "user"
+                ? "bg-[#f7cf1d] text-black self-end"
+                : "bg-gray-700 text-white self-start"
+            }`}
+          >
+            <p>{message.content}</p>
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -47,12 +179,15 @@ export default function AIAgent() {
             onChange={handleInputChange}
             className="flex-grow bg-gray-800 border-gray-700 text-white"
           />
-          <Button type="submit" size="icon" className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]">
+          <Button
+            type="submit"
+            size="icon"
+            className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
-
