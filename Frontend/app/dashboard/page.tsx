@@ -1,32 +1,31 @@
+"use client";
+
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AIAgent from "../components/AIAgent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-const activeVotings = [
-  {
-    id: 1,
-    name: "City Park Renovation",
-    description:
-      "Vote on the proposed designs for the central park renovation.",
-  },
-  {
-    id: 2,
-    name: "Public Transportation Expansion",
-    description:
-      "Choose between different plans for expanding the city's public transportation.",
-  },
-  {
-    id: 3,
-    name: "Education Budget Allocation",
-    description:
-      "Decide on the allocation of the education budget for the next fiscal year.",
-  },
-];
+import { useEffect, useState } from "react";
+import { useContractCustom } from "@/hooks/use-contract";
+import { ProposalPublic } from "@/interfaces/Proposal";
+import { useAccount } from "@starknet-react/core";
 
 export default function DashboardPage() {
+  const [activeVotings, setActiveVotings] = useState<ProposalPublic[]>([]);
+  const { getMyProposals } = useContractCustom();
+  const { address, isConnected } = useAccount();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!!address && isConnected) {
+        const proposals = await getMyProposals(1, address);
+        setActiveVotings(proposals);
+      }
+    };
+    fetchData();
+  }, [address, isConnected]);
+
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
       <Header />
@@ -48,9 +47,9 @@ export default function DashboardPage() {
                       {voting.name}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex-grow">
+                  {/*<CardContent className="flex-grow">
                     <p className="text-gray-300 mb-4">{voting.description}</p>
-                  </CardContent>
+                  </CardContent>*/}
                   <CardContent>
                     <Button
                       asChild

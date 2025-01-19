@@ -1,48 +1,62 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { braavos, useAccount, useConnect } from "@starknet-react/core";
+import { useEffect } from "react";
 
 export default function LoginPage() {
-  const [walletAddress, setWalletAddress] = useState('')
-  const router = useRouter()
+  const router = useRouter();
+
+  const { address, isDisconnected, isConnected } = useAccount();
+  const { connect } = useConnect();
 
   const handleConnectWallet = () => {
-    console.log("conecting wallet")
-    setWalletAddress('0x1234...5678')
-    router.push('/dashboard')
-  }
+    connect({ connector: braavos() });
+    console.log("conecting wallet");
+    router.push("/dashboard");
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
         <Card className="w-full max-w-md bg-gray-900 border-[#f7cf1d]">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-[#f7cf1d]">Welcome to DeVote</CardTitle>
-            <CardDescription className="text-center text-gray-400">Connect your wallet to access the voting platform</CardDescription>
+            <CardTitle className="text-2xl font-bold text-center text-[#f7cf1d]">
+              Welcome to DeVote
+            </CardTitle>
+            <CardDescription className="text-center text-gray-400">
+              Connect your wallet to access the voting platform
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {walletAddress ? (
-              <div className="text-center">
-                <p className="text-sm text-gray-400">Connected Wallet</p>
-                <p className="text-[#f7cf1d] font-mono">{walletAddress}</p>
-              </div>
-            ) : (
-              <Button 
+            {isDisconnected ? (
+              <Button
                 onClick={handleConnectWallet}
                 className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
               >
-                Connect Wallet
+                Connect Braavos
               </Button>
+            ) : (
+              <div className="text-center">
+                <p className="text-sm text-gray-400">Connected Wallet:</p>
+                <p className="text-[#f7cf1d] font-mono">{address}</p>
+              </div>
             )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <p className="text-sm text-gray-400 text-center">
-              By connecting, you agree to our{' '}
+              By connecting, you agree to our{" "}
               <Link href="/terms" className="text-[#f7cf1d] hover:underline">
                 Terms of Service
               </Link>
@@ -60,6 +74,5 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
-

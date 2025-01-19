@@ -60,23 +60,35 @@ pub struct ProposalPublic {
 trait IDeVote<ContractState> {
     fn create_new_person(ref self: ContractState, person_id: felt252);
     fn change_person_rol(ref self: ContractState, new_rol: felt252);
-    fn get_person(self: @ContractState) -> PersonPublic;
-    fn get_person_rol(self: @ContractState) -> felt252;
-    fn get_person_proposals(self: @ContractState) -> Array<PersonProposalStruct>;
+    fn get_person(self: @ContractState, connected_walled_id: ContractAddress) -> PersonPublic;
+    fn get_person_rol(self: @ContractState, connected_walled_id: ContractAddress) -> felt252;
+    fn get_person_proposals(
+        self: @ContractState, connected_walled_id: ContractAddress,
+    ) -> Array<PersonProposalStruct>;
     fn create_proposal(ref self: ContractState, proposal_id: felt252, name: felt252);
-    fn get_proposal(self: @ContractState, proposal_id: felt252) -> ProposalPublic;
-    fn add_voter(ref self: ContractState, proposal_id: felt252, voter_id: felt252);
+    fn get_proposal(
+        self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
+    ) -> ProposalPublic;
+    fn add_voter(ref self: ContractState, proposal_id: felt252, voter_wallet: ContractAddress);
     fn modify_voters(ref self: ContractState, proposal_id: felt252, voter_id: felt252, role: u8);
     fn remove_voters(ref self: ContractState, proposal_id: felt252, voter_id: felt252);
     fn add_vote_type(ref self: ContractState, proposal_id: felt252, vote_type: felt252);
     fn remove_vote_type(ref self: ContractState, proposal_id: felt252, vote_type: felt252);
-    fn get_vote_types(self: @ContractState, proposal_id: felt252) -> Array<ProposalVoteTypeStruct>;
+    fn get_vote_types(
+        self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
+    ) -> Array<ProposalVoteTypeStruct>;
     fn start_votation(ref self: ContractState, proposal_id: felt252);
     fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252);
     fn end_votation(ref self: ContractState, proposal_id: felt252);
-    fn view_votation(self: @ContractState, proposal_id: felt252) -> Array<ProposalVoteTypeStruct>;
-    fn view_person_list(self: @ContractState) -> Array<PersonIdStruct>;
-    fn get_all_person_ids(self: @ContractState) -> Array<PersonIdStruct>;
+    fn view_votation(
+        self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
+    ) -> Array<ProposalVoteTypeStruct>;
+    fn view_person_list(
+        self: @ContractState, connected_walled_id: ContractAddress,
+    ) -> Array<PersonIdStruct>;
+    fn get_all_person_ids(
+        self: @ContractState, connected_walled_id: ContractAddress,
+    ) -> Array<PersonIdStruct>;
 }
 #[starknet::contract]
 mod DeVote {
@@ -97,7 +109,7 @@ mod DeVote {
     #[storage]
     struct Storage {
         persons_ids: Vec<PersonIdStruct>,
-        persons: Map<felt252, Person>,
+        persons: Map<ContractAddress, Person>,
         proposals: Map<felt252, Proposal>,
     }
     #[event]
@@ -151,9 +163,8 @@ mod DeVote {
     #[abi(embed_v0)]
     impl DeVoteImpl of IDeVote<ContractState> {
         fn create_new_person(ref self: ContractState, person_id: felt252) {
-            let id_number = get_id_by_wallet(@self);
             let wallet_id = get_caller_address();
-            let mut person = self.persons.entry(id_number);
+            let mut person = self.persons.entry(wallet_id);
             person.id_number.write(person_id);
             person.wallet_id.write(wallet_id);
             person.role.write(0);
@@ -166,9 +177,9 @@ mod DeVote {
                     },
                 );
         }
+
         fn change_person_rol(ref self: ContractState, new_rol: felt252) {
-            let id_number = get_id_by_wallet(@self);
-            let person = self.persons.entry(id_number);
+            let person = self.persons.entry(get_caller_address());
             person.role.write(new_rol);
             self
                 .emit(
@@ -179,9 +190,9 @@ mod DeVote {
                     },
                 );
         }
-        fn get_person(self: @ContractState) -> PersonPublic {
-            let id_number = get_id_by_wallet(self);
-            let person = self.persons.entry(id_number);
+
+        fn get_person(self: @ContractState, connected_walled_id: ContractAddress) -> PersonPublic {
+            let person = self.persons.entry(connected_walled_id);
 
             let mut proposals = ArrayTrait::<PersonProposalStruct>::new();
             let mut idx = 0;
@@ -196,14 +207,15 @@ mod DeVote {
                 proposals: proposals,
             };
         }
-        fn get_person_rol(self: @ContractState) -> felt252 {
-            let id_number = get_id_by_wallet(self);
-            let person = self.persons.entry(id_number);
+
+        fn get_person_rol(self: @ContractState, connected_walled_id: ContractAddress) -> felt252 {
+            let person = self.persons.entry(connected_walled_id);
             return person.role.read();
         }
-        fn get_person_proposals(self: @ContractState) -> Array<PersonProposalStruct> {
-            let id_number = get_id_by_wallet(self);
-            let person = self.persons.entry(id_number);
+        fn get_person_proposals(
+            self: @ContractState, connected_walled_id: ContractAddress,
+        ) -> Array<PersonProposalStruct> {
+            let person = self.persons.entry(connected_walled_id);
             let mut proposals = ArrayTrait::<PersonProposalStruct>::new();
             let mut idx = 0;
             while idx < person.proposals.len() {
@@ -213,8 +225,7 @@ mod DeVote {
             return proposals;
         }
         fn create_proposal(ref self: ContractState, proposal_id: felt252, name: felt252) {
-            let id_number = get_id_by_wallet(@self);
-            let person = self.persons.entry(id_number);
+            let person = self.persons.entry(get_caller_address());
             if person.role.read() == 0 {
                 self
                     .emit(
@@ -234,9 +245,9 @@ mod DeVote {
             proposal.has_voted.write(0);
 
             let temporal_voter = ProposalVoterStruct { has_voted: false, role: 3 };
-            proposal.voters.entry(id_number).write(temporal_voter);
+            proposal.voters.entry(person.id_number.read()).write(temporal_voter);
 
-            let mut proposal_creator = self.persons.entry(id_number);
+            let mut proposal_creator = self.persons.entry(get_caller_address());
             let temp = PersonProposalStruct { proposal_id: proposal_id, role: 3 };
             proposal_creator.proposals.append().write(temp);
 
@@ -250,7 +261,9 @@ mod DeVote {
                     },
                 );
         }
-        fn get_proposal(self: @ContractState, proposal_id: felt252) -> ProposalPublic {
+        fn get_proposal(
+            self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
+        ) -> ProposalPublic {
             let proposal = self.proposals.entry(proposal_id);
             let mut votation = ArrayTrait::<ProposalVoteTypeStruct>::new();
             let mut idx = 0;
@@ -262,7 +275,7 @@ mod DeVote {
                 idx += 1;
             };
 
-            let id_number = get_id_by_wallet(self);
+            let person = self.persons.entry(connected_walled_id);
             return ProposalPublic {
                 id: proposal.id.read(),
                 name: proposal.name.read(),
@@ -270,15 +283,22 @@ mod DeVote {
                 total_voters: proposal.total_voters.read(),
                 has_voted: proposal.has_voted.read(),
                 type_votes: votation,
-                voter: proposal.voters.entry(id_number).read(),
+                voter: proposal.voters.entry(person.id_number.read()).read(),
             };
         }
-        fn add_voter(ref self: ContractState, proposal_id: felt252, voter_id: felt252) {
+        fn add_voter(ref self: ContractState, proposal_id: felt252, voter_wallet: ContractAddress) {
             if can_modify_proposal(@self, proposal_id, 0) {
                 let mut proposal = self.proposals.entry(proposal_id);
-                let temp = ProposalVoterStruct { has_voted: false, role: 1 };
+                let mut person = self.persons.entry(voter_wallet);
+                let temp = ProposalVoterStruct { has_voted: false, role: 3 };
+                let voter_id = person.id_number.read();
                 proposal.voters.entry(voter_id).write(temp);
                 proposal.total_voters.write(proposal.total_voters.read() + 1);
+                person
+                    .proposals
+                    .append()
+                    .write(PersonProposalStruct { proposal_id: proposal_id, role: 3 });
+
                 self
                     .emit(
                         AddVoter {
@@ -389,7 +409,7 @@ mod DeVote {
             }
         }
         fn get_vote_types(
-            self: @ContractState, proposal_id: felt252,
+            self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
         ) -> Array<ProposalVoteTypeStruct> {
             let mut proposals = ArrayTrait::<ProposalVoteTypeStruct>::new();
             let proposal = self.proposals.entry(proposal_id);
@@ -416,7 +436,7 @@ mod DeVote {
             }
         }
         fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252) {
-            let id_number = get_id_by_wallet(@self);
+            let person = self.persons.entry(get_caller_address());
             let mut proposal = self.proposals.entry(proposal_id);
             if proposal.state.read() != 1 {
                 self
@@ -429,7 +449,7 @@ mod DeVote {
                     );
                 return;
             }
-            let voter = proposal.voters.entry(id_number);
+            let voter = proposal.voters.entry(person.id_number.read());
             if voter.role.read() == 0 {
                 self
                     .emit(
@@ -490,7 +510,7 @@ mod DeVote {
             }
         }
         fn view_votation(
-            self: @ContractState, proposal_id: felt252,
+            self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
         ) -> Array<ProposalVoteTypeStruct> {
             let mut votation = ArrayTrait::<ProposalVoteTypeStruct>::new();
             let proposal = self.proposals.entry(proposal_id);
@@ -505,7 +525,9 @@ mod DeVote {
             return votation;
         }
 
-        fn get_all_person_ids(self: @ContractState) -> Array<PersonIdStruct> {
+        fn get_all_person_ids(
+            self: @ContractState, connected_walled_id: ContractAddress,
+        ) -> Array<PersonIdStruct> {
             let mut person_ids = ArrayTrait::<PersonIdStruct>::new();
             for i in 0..self.persons_ids.len() {
                 person_ids.append(self.persons_ids.at(i).read());
@@ -513,7 +535,9 @@ mod DeVote {
             person_ids
         }
 
-        fn view_person_list(self: @ContractState) -> Array<PersonIdStruct> {
+        fn view_person_list(
+            self: @ContractState, connected_walled_id: ContractAddress,
+        ) -> Array<PersonIdStruct> {
             let mut person_list = ArrayTrait::<PersonIdStruct>::new();
             let mut idx = 0;
             while idx < self.persons_ids.len() {
@@ -535,31 +559,16 @@ mod DeVote {
     fn can_modify_proposal(
         self: @ContractState, proposal_id: felt252, proposal_status: u8,
     ) -> bool {
-        let id_number = get_id_by_wallet(self);
         let proposal = self.proposals.entry(proposal_id);
+        let person = self.persons.entry(get_caller_address());
         if proposal.state.read() != proposal_status {
             return false;
         } else {
-            let voter = proposal.voters.entry(id_number);
+            let voter = proposal.voters.entry(person.id_number.read());
             if voter.role.read() == 3 {
                 return true;
             }
         }
         return false;
-    }
-
-    fn get_id_by_wallet(self: @ContractState) -> felt252 {
-        let mut result: felt252 = '';
-        let mut idx = 0;
-        while idx < self.persons_ids.len() {
-            if let Option::Some(person) = self.persons_ids.get(idx) {
-                let wallet_id = person.wallet_id.read();
-                if wallet_id == get_caller_address() {
-                    result = person.id_number.read();
-                }
-            }
-            idx += 1;
-        };
-        return result;
     }
 }
