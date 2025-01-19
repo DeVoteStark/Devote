@@ -21,6 +21,13 @@ export const proposals = [
     options: ["Approve", "Reject"],
   },
   {
+    id: "waste-management",
+    name: "Waste Management Plan",
+    description:
+      "Implement a comprehensive solid waste management program, including community education, additional recycling stations, and agreements with waste collection companies.",
+    options: ["Approve", "Reject"],
+  },
+  {
     id: "energy",
     name: "Renewable Energy Plan",
     description:

@@ -33,7 +33,6 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
   };
 
   const startConversation = async () => {
-    console.log("Iniciando conversación...", proposalId);
     try {
       const response = await fetch("/api/votes/start", {
         method: "POST",
@@ -52,7 +51,6 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
       setSessionId(messageReceived["sessionId"]);
 
       const cleanedMessage = messageReceived["message"];
-      console.log("Mensaje recibido (limpio):", cleanedMessage);
 
       try {
         const sanitizedMessage = cleanedMessage
@@ -60,9 +58,7 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
           .replace(/\n/g, "\\n");
 
         const javascriptMessage = JSON.parse(sanitizedMessage);
-        console.log("Mensaje parseado:", javascriptMessage);
         const textResponse = javascriptMessage.textResponse;
-        console.log("textResponse:", textResponse);
         setMessages([{ role: "assistant", content: textResponse }]);
         setDataRetrieved(javascriptMessage);
       } catch (parseError) {
@@ -82,8 +78,6 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
         ...prevMessages,
         { role: "user", content: userMessage },
       ]);
-
-      console.log("Session Id:" + sessionId);
       const response = await fetch("/api/votes/start", {
         method: "POST",
         headers: {
@@ -99,10 +93,7 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
       });
 
       const messageReceived = await response.json();
-      setSessionId(messageReceived["sessionId"]);
-
       const cleanedMessage = messageReceived["message"];
-      console.log("Mensaje recibido (limpio):", cleanedMessage);
 
       try {
         const sanitizedMessage = cleanedMessage

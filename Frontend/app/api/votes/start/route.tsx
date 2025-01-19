@@ -47,8 +47,6 @@ export async function POST(req: Request): Promise<NextResponse> {
           proposals[0].description
         : proposals[0].description;
 
-      console.log("Additional Content:", additionalContent);
-
       const newSessionId = uuidv4();
 
       const messages: Record<string, Message[]> = {
