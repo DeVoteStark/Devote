@@ -62,9 +62,6 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div className="lg:col-span-1">
-            <AIAgent />
-          </div>
         </div>
       </main>
       <Footer />

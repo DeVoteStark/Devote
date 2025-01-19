@@ -17,12 +17,7 @@ import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { useParams } from "next/navigation";
 import { useAccount } from "@starknet-react/core";
-
-/*const votingOptions = [
-  { id: 1, name: "Option A", description: "First proposed solution" },
-  { id: 2, name: "Option B", description: "Second proposed solution" },
-  { id: 3, name: "Option C", description: "Third proposed solution" },
-];*/
+import AIAgent from "@/app/components/AIAgent";
 
 export default function VotingStationPage() {
   const [selectedOption, setSelectedOption] = useState<string>("");
@@ -69,59 +64,70 @@ export default function VotingStationPage() {
           {proposal?.name}
         </h1>
 
-        <Card className="bg-gray-900 border-[#f7cf1d] max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-[#f7cf1d]">Cast Your Vote</CardTitle>
-            <CardDescription className="text-gray-400">
-              Choose your preferred option for {proposal?.name} project
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {proposal?.voter?.has_voted ? (
-              <div className="text-center py-8">
-                <h2 className="text-2xl font-bold text-[#f7cf1d] mb-4">
-                  Thank you for voting!
-                </h2>
-                <p className="text-gray-300">
-                  Your vote has been recorded successfully.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <RadioGroup
-                  value={selectedOption}
-                  onValueChange={setSelectedOption}
-                >
-                  {votingOptions.map((option) => (
-                    <div
-                      key={option.vote_type}
-                      className="flex items-center space-x-2"
-                    >
-                      <RadioGroupItem
-                        value={option.vote_type.toString()}
-                        id={option.vote_type.toString()}
-                        className="border-[#f7cf1d] text-[#f7cf1d]"
-                      />
-                      <Label
-                        htmlFor={option.vote_type.toString()}
-                        className="text-gray-200 cursor-pointer"
-                      >
-                        {option.vote_type}
-                      </Label>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <div className="grid gap-6 md:grid-cols-1">
+              <Card className="bg-gray-900 border-[#f7cf1d] max-w-2xl mx-auto">
+                <CardHeader>
+                  <CardTitle className="text-[#f7cf1d]">
+                    Cast Your Vote
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Choose your preferred option for {proposal?.name} project
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {proposal?.voter?.has_voted ? (
+                    <div className="text-center py-8">
+                      <h2 className="text-2xl font-bold text-[#f7cf1d] mb-4">
+                        Thank you for voting!
+                      </h2>
+                      <p className="text-gray-300">
+                        Your vote has been recorded successfully.
+                      </p>
                     </div>
-                  ))}
-                </RadioGroup>
-                <Button
-                  onClick={handleVote}
-                  disabled={!selectedOption}
-                  className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e] disabled:opacity-50"
-                >
-                  Submit Vote
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ) : (
+                    <div className="space-y-6">
+                      <RadioGroup
+                        value={selectedOption}
+                        onValueChange={setSelectedOption}
+                      >
+                        {votingOptions.map((option) => (
+                          <div
+                            key={option.vote_type}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem
+                              value={option.vote_type.toString()}
+                              id={option.vote_type.toString()}
+                              className="border-[#f7cf1d] text-[#f7cf1d]"
+                            />
+                            <Label
+                              htmlFor={option.vote_type.toString()}
+                              className="text-gray-200 cursor-pointer"
+                            >
+                              {option.vote_type}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                      <Button
+                        onClick={handleVote}
+                        disabled={!selectedOption}
+                        className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e] disabled:opacity-50"
+                      >
+                        Submit Vote
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          <div className="lg:col-span-1">
+            <AIAgent />
+          </div>
+        </div>
       </main>
       <Footer />
     </div>
