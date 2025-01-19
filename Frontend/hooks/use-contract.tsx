@@ -662,6 +662,7 @@ export function useContractCustom() {
       proposal_id,
       wallet_address
     );
+    proposal.id = shortString.decodeShortString(proposal.id);
     proposal.name = shortString.decodeShortString(proposal.name);
     proposal.state = Number(proposal.state);
     proposal.total_voters = Number(proposal.total_voters);
@@ -673,6 +674,7 @@ export function useContractCustom() {
         return type;
       })
       .filter((type) => type.is_active);
+    console.log("fixed proposal", proposal);
     return proposal;
   };
 

@@ -1,11 +1,12 @@
 // app/api/vote/route.js
 
-import { v4 as uuidv4 } from 'uuid';
-import { NextResponse } from 'next/server';
-import { generateResponse } from '@/lib/openai/openaiService';
+import { v4 as uuidv4 } from "uuid";
+import { NextResponse } from "next/server";
+import { generateResponse } from "@/lib/openai/openaiService";
+import { proposals } from "@/mockData/proposals";
 
 interface Message {
-  role: 'system' | 'assistant' | 'user';
+  role: "system" | "assistant" | "user";
   content: string;
 }
 
@@ -18,29 +19,43 @@ const userSessions: Record<string, Session> = {};
 export async function POST(req: Request): Promise<NextResponse> {
   try {
     const body = await req.json();
-    const { start, lng, sessionId, userMessage }: {
+    const {
+      start,
+      lng,
+      sessionId,
+      userMessage,
+      proposalId,
+    }: {
       start: boolean;
       lng?: string;
       sessionId?: string;
       userMessage?: string;
+      proposalId?: string;
     } = body;
 
     if (start) {
       // Start Conversation Logic
       if (!lng) {
-        return NextResponse.json({ error: "Missing 'lng' parameter" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Missing 'lng' parameter" },
+          { status: 400 }
+        );
       }
 
-      const additionalContent = "Crear un programa de becas para estudiantes de bajos recursos en Tamarindo, financiado por la ADI y donaciones de empresas locales.";
+      const additionalContent = proposalId
+        ? proposals.find((p) => p.id === proposalId)?.description ??
+          proposals[0].description
+        : proposals[0].description;
+
+      console.log("Additional Content:", additionalContent);
 
       const newSessionId = uuidv4();
 
       const messages: Record<string, Message[]> = {
         es: [
-          { 
-            role: 'system', 
-            content:
-              `
+          {
+            role: "system",
+            content: `
                 Eres Civitus, un asistente especializado en votaciones.
                 Tu objetivo es proporcionar información clara, precisa y objetiva sobre los temas de votación, ayudando al usuario a tomar decisiones informadas. 
                 Tienes acceso al contexto completo de la votación desde el inicio: 
@@ -410,12 +425,11 @@ export async function POST(req: Request): Promise<NextResponse> {
                 }
                 ....
                 El flujo termina aquí.
-              `
+              `,
           },
-          { 
-            role: 'assistant', 
-            content: 
-              `
+          {
+            role: "assistant",
+            content: `
                 {
                       "hasContext": true,
                       "hasVoted": false,
@@ -423,12 +437,12 @@ export async function POST(req: Request): Promise<NextResponse> {
                       "textResponse": "¡Hola! Soy Civitus, tu asistente que te ayudará en este proceso de votación, ahora te contaré lo que necesitas saber:
                                     Hoy estamos votando sobre la implementación de ${additionalContent} ¿Te gustaría que te explique los pros y contras antes de emitir tu voto?"
                     }
-              `
-          }
+              `,
+          },
         ],
       };
 
-      const selectedMessages = messages[lng] || messages['es'];
+      const selectedMessages = messages[lng] || messages["es"];
 
       userSessions[newSessionId] = {
         messages: selectedMessages,
@@ -436,30 +450,41 @@ export async function POST(req: Request): Promise<NextResponse> {
 
       console.log("New User Sessions:", userSessions);
 
-      return NextResponse.json({ sessionId: newSessionId, message: selectedMessages[1].content });
+      return NextResponse.json({
+        sessionId: newSessionId,
+        message: selectedMessages[1].content,
+      });
     } else {
-      
       if (!sessionId || !userMessage) {
-        return NextResponse.json({ error: "Missing 'sessionId' or 'userMessage' parameter" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Missing 'sessionId' or 'userMessage' parameter" },
+          { status: 400 }
+        );
       }
 
       const session = userSessions[sessionId];
 
       if (!session) {
-        return NextResponse.json({ error: "Invalid session ID." }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid session ID." },
+          { status: 400 }
+        );
       }
 
-      session.messages.push({ role: 'user', content: userMessage });
+      session.messages.push({ role: "user", content: userMessage });
 
       const response = await generateResponse(session.messages);
-      console.log('Generated Response:', response);
+      console.log("Generated Response:", response);
 
-      session.messages.push({ role: 'assistant', content: response });
+      session.messages.push({ role: "assistant", content: response });
 
       return NextResponse.json({ message: response });
     }
   } catch (error) {
     console.error("Error in vote handler API:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

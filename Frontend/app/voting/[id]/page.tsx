@@ -125,7 +125,7 @@ export default function VotingStationPage() {
             </div>
           </div>
           <div className="lg:col-span-1">
-            <AIAgent />
+            {proposal && <AIAgent proposalId={proposal.id} />}
           </div>
         </div>
       </main>

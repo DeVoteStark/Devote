@@ -6,7 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
 
-export default function AIAgent() {
+interface AIAgentProps {
+  proposalId: string;
+}
+
+const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
   type Message = {
     role: "user" | "assistant";
     content: string;
@@ -14,7 +18,6 @@ export default function AIAgent() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
-  const [firstMessage, setFirstMessage] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [dataRetrieved, setDataRetrieved] = useState({
     hasContext: true,
@@ -30,6 +33,7 @@ export default function AIAgent() {
   };
 
   const startConversation = async () => {
+    console.log("Iniciando conversación...", proposalId);
     try {
       const response = await fetch("/api/votes/start", {
         method: "POST",
@@ -41,6 +45,7 @@ export default function AIAgent() {
           lng: "es",
           sessionId: "",
           userMessage: "",
+          proposalId: proposalId,
         }),
       });
       const messageReceived = await response.json();
@@ -89,6 +94,7 @@ export default function AIAgent() {
           lng: "es",
           sessionId: sessionId,
           userMessage: userMessage,
+          proposalId: proposalId,
         }),
       });
 
@@ -132,6 +138,7 @@ export default function AIAgent() {
     if (input.trim() !== "") {
       console.log("Mensaje: " + input.trim());
       continueConversation(input.trim());
+      setInput("");
     }
   };
 
@@ -189,4 +196,6 @@ export default function AIAgent() {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default AIAgent;
