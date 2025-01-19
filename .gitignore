@@ -2,4 +2,6 @@ Frontend/node_modules/
 Frontend/package-lock.json
 Frontend/dist/
 Frontend/.next/
+Frontend/.env
 .vscode/
+.env
