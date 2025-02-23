@@ -57,6 +57,13 @@ export default function Header() {
           >
             <Link href="/results">Results</Link>
           </Button>
+          <Button
+            variant="ghost"
+            className="text-gray-300 hover:text-[#f7cf1d]"
+            asChild
+          >
+            <Link href="/verify">Verify</Link>
+          </Button>
           {smallAddress}
           <Button
             variant="link"
