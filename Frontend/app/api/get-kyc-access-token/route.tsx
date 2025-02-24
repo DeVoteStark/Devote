@@ -1,7 +1,6 @@
 import axios from "axios";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 type ResponseData = {
   message?: string;
@@ -31,7 +30,8 @@ function createSignature(config: any) {
   signature.update(`${timestamp}${method}${url}`);
 
   if (config.data) {
-    signature.update(config.data);
+    const dataString = JSON.stringify(config.data);
+    signature.update(dataString);
   }
 
   config.headers["X-App-Token"] = SUMSUB_APP_TOKEN;
@@ -41,14 +41,15 @@ function createSignature(config: any) {
   return config;
 }
 
-export async function POST(req: NextApiRequest): Promise<NextResponse | void> {
+export async function POST(req: Request): Promise<NextResponse | void> {
   try {
-    const { userId } = req.body;
+    const body = await req.json();
+    const { userId, userEmail }: { userId: string; userEmail: string } = body;
+    const requestUri = `/resources/accessTokens/sdk`;
 
     const secretKey = SUMSUB_SECRET_KEY;
     const timestamp = Math.floor(Date.now() / 1000);
-    const method = "GET";
-    const requestUri = `/resources/applicants/-;externalUserId=${userId}/one`;
+    const method = "POST";
 
     const signaturePayload =
       `${timestamp}${method}${requestUri}`.toLocaleLowerCase();
@@ -58,11 +59,14 @@ export async function POST(req: NextApiRequest): Promise<NextResponse | void> {
       .digest("hex");
 
     const options = {
-      method: "GET",
-      url: `https://api.sumsub.com/resources/applicants/-;externalUserId=${userId}/one`,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+      method: "POST",
+      url: `${SUMSUB_BASE_URL}${requestUri}`,
+      headers: { "content-type": "application/json" },
+      data: {
+        applicantIdentifiers: { email: userEmail },
+        ttlInSecs: 600,
+        userId,
+        levelName: "BasicLevel",
       },
     };
 

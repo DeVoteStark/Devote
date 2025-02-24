@@ -9,10 +9,11 @@ interface SUserVerificationProps {
   userId: string;
 }
 
-export const SumsubVerificationStatus = ({ userId }: SUserVerificationProps) => {
+export const SumsubVerificationStatus = ({
+  userId,
+}: SUserVerificationProps) => {
   const router = useRouter();
   const [externalUserId, setExternalUserId] = useState(userId);
-  const [verificationLink, setVerificationLink] = useState("");
   const [error, setError] = useState("");
   const [accessToken, setAccessToken] = useState("");
 
@@ -24,13 +25,12 @@ export const SumsubVerificationStatus = ({ userId }: SUserVerificationProps) => 
     try {
       const response = await axios.post("/api/get-kyc-access-token", {
         userId: externalUserId,
+        userEmail: "pjmq2@hotmail.com",
       });
 
       const { url } = response.data;
       console.log("response", response);
       setAccessToken(response.data.token);
-
-      setVerificationLink(url);
       setError("");
     } catch (error: any) {
       setError("Error generating verification link. Please try again later.");
