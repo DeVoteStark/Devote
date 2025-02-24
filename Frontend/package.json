@@ -73,7 +73,6 @@
   "devDependencies": {
     "@sumsub/websdk-react": "^2.3.12",
     "@types/bcryptjs": "^2.4.6",
-    "@sumsub/websdk-react": "^2.3.12",
     "@types/node": "^22",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^18",
