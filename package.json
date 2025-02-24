@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@argent/webwallet-sdk": "^1.0.0-alpha.2",
+    "starknetkit": "^2.6.1"
+  }
+}
