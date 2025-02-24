@@ -38,3 +38,26 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    await connectToDb();
+    const url = new URL(req.url);
+    const ine = url.searchParams.get("ine");
+
+    if (!ine) {
+      return NextResponse.json({ message: "El parámetro 'ine' es obligatorio." }, { status: 400 });
+    }
+
+    const citizen = await Citizen.findOne({ ine }).lean().exec();
+
+    if (!citizen) {
+      return NextResponse.json({ message: "Citizen not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(citizen, { status: 200 });
+  } catch (error) {
+    console.error("Error on GET /api/citizens:", error);
+    return NextResponse.json({ message: "Internal server error." }, { status: 500 });
+  }
+}
