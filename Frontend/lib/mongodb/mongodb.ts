@@ -7,6 +7,7 @@ if (!MONGO_URI) {
 }
 
 async function connectToDb() {
+try{
   if (mongoose.connection.readyState === 1) {
     return mongoose;
   }
@@ -16,6 +17,8 @@ async function connectToDb() {
   await mongoose.connect(MONGO_URI, opts);
   console.log("Connected to MongoDB");
   return mongoose;
+}catch(err){
+    console.log(err);
 }
-
+}
 export default connectToDb;
