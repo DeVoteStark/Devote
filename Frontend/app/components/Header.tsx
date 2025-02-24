@@ -1,10 +1,9 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { useDisconnect } from "@starknet-react/core";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,26 +11,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useWallet } from "@/hooks/use-wallet";
 import { User } from "lucide-react";
 import { useContractCustom } from "@/hooks/use-contract";
 import { PersolRol } from "@/interfaces/Person";
+import { loginStatus } from "@/interfaces/Login";
 
 export default function Header() {
-  const { disconnect } = useDisconnect();
-  const { smallAddress, isDisconnected, address } = useWallet();
+  const { connectionStatus, address, disconnectWallet } = useWallet();
   const { getPersonRol } = useContractCustom();
   const router = useRouter();
   const [walletRol, setWalletRol] = useState<PersolRol>(PersolRol.user);
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (isDisconnected) router.push("/");
-  }, [isDisconnected]);
+    if (
+      connectionStatus === loginStatus.DISCONECTED ||
+      connectionStatus === loginStatus.ERROR
+    )
+      router.push("/");
+  }, [connectionStatus]);
 
-  const handleDisconnect = () => {
-    console.log("disconnecting wallet");
-    disconnect();
+  useEffect(() => {
+    if (walletRol === PersolRol.noUser && pathname !== "/verify")
+      router.push("/verify");
+  }, [walletRol, pathname]);
+
+  const handleDisconnect = (): void => {
+    disconnectWallet();
     router.push("/");
   };
 
@@ -57,27 +65,31 @@ export default function Header() {
           />
         </Link>
         <div>
-          <Button
-            variant="ghost"
-            className="text-gray-300 hover:text-[#f7cf1d]"
-            asChild
-          >
-            <Link href="/dashboard">Vote Now</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-300 hover:text-[#f7cf1d]"
-            asChild
-          >
-            <Link href="/upcoming">Upcoming</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-gray-300 hover:text-[#f7cf1d]"
-            asChild
-          >
-            <Link href="/results">Results</Link>
-          </Button>
+          {(walletRol === PersolRol.user || walletRol === PersolRol.admin) && (
+            <>
+              <Button
+                variant="ghost"
+                className="text-gray-300 hover:text-[#f7cf1d]"
+                asChild
+              >
+                <Link href="/dashboard">Vote Now</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-300 hover:text-[#f7cf1d]"
+                asChild
+              >
+                <Link href="/upcoming">Upcoming</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                className="text-gray-300 hover:text-[#f7cf1d]"
+                asChild
+              >
+                <Link href="/results">Results</Link>
+              </Button>
+            </>
+          )}
 
           {walletRol === PersolRol.admin && (
             <Button
@@ -98,14 +110,7 @@ export default function Header() {
               <Link href="/verify">Verify</Link>
             </Button>
           )}
-          {smallAddress}
-          <Button
-            variant="link"
-            className="text-gray-300"
-            onClick={handleDisconnect}
-          >
-            Disconnect
-          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -118,11 +123,21 @@ export default function Header() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
+              {walletRol !== PersolRol.noUser && (
+                <DropdownMenuItem asChild>
+                  <Button variant="ghost" className="w-full">
+                    <Link href="/user-settings">Settings</Link>
+                  </Button>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
-                <Link href="/user-settings">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/">Logout</Link>
+                <Button
+                  variant="ghost"
+                  onClick={handleDisconnect}
+                  className="w-full"
+                >
+                  Disconnect
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
