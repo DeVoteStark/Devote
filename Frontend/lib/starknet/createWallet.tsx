@@ -21,16 +21,16 @@ const getHashFromString = (data: string) => {
 // Encrypt the data using the derived key
 const encryptData = (password: string, pin: string) => {
   const key = getHashFromString(pin);
-  const cipher = crypto.createCipheriv(algorithm, key, null);
+  const cipher = crypto.createCipheriv(algorithm, key, Buffer.alloc(0));
   let encrypted = cipher.update(password, "utf-8", "hex");
   encrypted += cipher.final("hex");
   return encrypted;
 };
 
 // Decrypt the data using the derived key
-const decryptData = (encryptedData: string, pin: string) => {
+const decryptData = (encryptedData: string, pin: string): string => {
   const key = getHashFromString(pin);
-  const decipher = crypto.createDecipheriv(algorithm, key, null);
+  const decipher = crypto.createDecipheriv(algorithm, key, Buffer.alloc(0));
   let decrypted = decipher.update(encryptedData, "hex", "utf-8");
   decrypted += decipher.final("utf-8");
   return decrypted;
@@ -82,8 +82,9 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
   pin: string,
   variable?: string
 ) => {
-  const RPC_KEY = process.env.METAMASK_RPC_SECRET_KEY ?? "";
+  const RPC_KEY = process.env.NEXT_PUBLIC_METAMASK_RPC_SECRET_KEY ?? "";
 
+  console.log("The RPC key is:", RPC_KEY);
   // connect provider
   const provider = new RpcProvider({
     nodeUrl: `https://starknet-sepolia.infura.io/v3/${RPC_KEY}`,
@@ -130,5 +131,5 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
 
   const { transaction_hash: AXdAth, contract_address: AXcontractFinalAddress } =
     await accountAX.deployAccount(deployAccountPayload);
-  console.log("✅ ArgentX wallet deployed at:", AXcontractFinalAddress);
+  console.log("✅ ArgentX wallet deployed at:", AXcontractFinalAddress, AXdAth);
 };
