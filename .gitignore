@@ -5,4 +5,5 @@ Frontend/.next/
 Frontend/.env
 .vscode/
 node_modules
+yarn.lock
 .env
