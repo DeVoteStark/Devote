@@ -4,8 +4,9 @@ import {
   PersonPublic,
 } from "@/interfaces/Person";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
-import { Abi, useAccount, useContract } from "@starknet-react/core";
+import { Abi, useContract } from "@starknet-react/core";
 import { shortString } from "starknet";
+import { useWallet } from "./use-wallet";
 const contractAddress =
   "0x048ff663cf2a45045d0898a2a56fd5a9c9c8e051e62e0c55821512cb30a26260";
 
@@ -628,7 +629,7 @@ export function useContractCustom() {
     abi: abi,
     address: contractAddress,
   });
-  const { account } = useAccount();
+  const { account } = useWallet();
 
   const getMyProposals = async (
     status: number = 0,

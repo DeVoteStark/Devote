@@ -14,26 +14,33 @@ import crypto from "crypto";
 const algorithm = "aes-256-ecb"; // Encryption algorithm
 
 // Derive encryption key from data
-const getHashFromString = (data: string) => {
+export const getHashFromString = (data: string) => {
   return crypto.createHash("sha256").update(data).digest();
 };
 
 // Encrypt the data using the derived key
-const encryptData = (password: string, pin: string) => {
+export const encryptData = (dataToEncrypt: string, pin: string) => {
   const key = getHashFromString(pin);
   const cipher = crypto.createCipheriv(algorithm, key, Buffer.alloc(0));
-  let encrypted = cipher.update(password, "utf-8", "hex");
+  let encrypted = cipher.update(dataToEncrypt, "utf-8", "hex");
   encrypted += cipher.final("hex");
   return encrypted;
 };
 
 // Decrypt the data using the derived key
-const decryptData = (encryptedData: string, pin: string): string => {
+export const decryptData = (encryptedData: string, pin: string): string => {
   const key = getHashFromString(pin);
   const decipher = crypto.createDecipheriv(algorithm, key, Buffer.alloc(0));
   let decrypted = decipher.update(encryptedData, "hex", "utf-8");
   decrypted += decipher.final("utf-8");
   return decrypted;
+};
+
+export const getDecryptedPrivateKey = (
+  encryptedPrivateKey: string,
+  pin: string
+) => {
+  return decryptData(encryptedPrivateKey, pin);
 };
 
 export const generatePrivateKeyEncrypted = (pin: string): string => {
