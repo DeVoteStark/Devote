@@ -1,6 +1,5 @@
 "use client";
 
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AIAgent from "../components/AIAgent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic } from "@/interfaces/Proposal";
 import { useAccount } from "@starknet-react/core";
+import Header from "../components/Header";
 
 export default function DashboardPage() {
   const [activeVotings, setActiveVotings] = useState<ProposalPublic[]>([]);

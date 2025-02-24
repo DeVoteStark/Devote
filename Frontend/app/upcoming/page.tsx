@@ -1,12 +1,12 @@
 "use client";
 
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useContractCustom } from "@/hooks/use-contract";
 import { useEffect, useState } from "react";
 import { ProposalPublic } from "@/interfaces/Proposal";
 import { useAccount } from "@starknet-react/core";
+import Header from "../components/Header";
 
 export default function UpcomingVotingsPage() {
   const { getMyProposals } = useContractCustom();

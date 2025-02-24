@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { useAccount, useDisconnect } from "@starknet-react/core";
+import { useDisconnect } from "@starknet-react/core";
 import {
   DropdownMenu,
   DropdownMenuContent,
