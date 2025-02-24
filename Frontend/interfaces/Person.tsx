@@ -3,10 +3,16 @@ export interface PersonProposalStruct {
   role: number; //0 no tiene permisos, 1 solo puede ver, 2 puede votar, 3 puede editar
 }
 
+export enum PersolRol {
+  noUser = 'noUser',
+  user = 'user',
+  admin = 'admin',
+}
+
 export interface Person {
   wallet_id: string;
   id_number: string;
-  role: string;
+  role: PersolRol;
   proposals: PersonProposalStruct[];
 }
 

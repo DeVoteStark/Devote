@@ -1,4 +1,8 @@
-import { PersonProposalStruct, PersonPublic } from "@/interfaces/Person";
+import {
+  PersolRol,
+  PersonProposalStruct,
+  PersonPublic,
+} from "@/interfaces/Person";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { Abi, useAccount, useContract } from "@starknet-react/core";
 import { shortString } from "starknet";
@@ -683,6 +687,18 @@ export function useContractCustom() {
     return result;
   };
 
+  const getPersonRol = async (wallet_address: string): Promise<PersolRol> => {
+    const rawRol = await contract?.get_person_rol(wallet_address);
+    const decodedRol = shortString.decodeShortString(rawRol);
+
+    let rol = PersolRol.noUser;
+    if (Object.values(PersolRol).includes(decodedRol as PersolRol)) {
+      rol = decodedRol as PersolRol;
+    }
+    console.log("Rol", rol);
+    return rol;
+  };
+
   const vote = async (proposal_id: string, vote_type: string) => {
     if (!account) {
       throw new Error("Account not connected");
@@ -710,5 +726,6 @@ export function useContractCustom() {
     viewVotation,
     getMyProposals,
     getProposal,
+    getPersonRol,
   };
 }

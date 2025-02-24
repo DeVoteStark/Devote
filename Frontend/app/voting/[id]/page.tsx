@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Footer from "../../components/Footer";
+import Header from "../../components/Header";
 import {
   Card,
   CardContent,
@@ -17,7 +18,6 @@ import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { useParams } from "next/navigation";
 import { useAccount } from "@starknet-react/core";
 import AIAgent from "@/app/components/AIAgent";
-import Header from "@/app/components/Header";
 
 export default function VotingStationPage() {
   const [selectedOption, setSelectedOption] = useState<string>("");
