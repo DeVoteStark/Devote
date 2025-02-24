@@ -16,6 +16,7 @@ axios.interceptors.request.use(createSignature, function (error: any) {
   return Promise.reject(error);
 });
 
+// This function creates a signature for the request
 function createSignature(config: any) {
   console.log("Creating a signature for the request...");
   const timestamp = Math.floor(Date.now() / 1000);
