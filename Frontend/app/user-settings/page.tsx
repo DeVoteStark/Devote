@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Header from "../components/Header"
-import Footer from "../components/Footer"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function UserSettingsPage() {
   const [user, setUser] = useState({
@@ -17,32 +17,41 @@ export default function UserSettingsPage() {
     id: "1 2345 6789",
     email: "john.doe@example.com",
     profilePicture: "/placeholder.svg?height=100&width=100",
-  })
+  });
 
-  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"]
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       if (allowedTypes.includes(file.type)) {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onloadend = () => {
-          setUser((prev) => ({ ...prev, profilePicture: reader.result as string }))
-        }
-        reader.readAsDataURL(file)
+          setUser((prev) => ({
+            ...prev,
+            profilePicture: reader.result as string,
+          }));
+        };
+        reader.readAsDataURL(file);
       } else {
-        alert("Please select a valid image file (jpg, jpeg, or png)")
+        alert("Please select a valid image file (jpg, jpeg, or png)");
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-8 text-[#f7cf1d]">User Settings</h1>
+        <h1 className="text-3xl font-bold text-center mb-8 text-[#f7cf1d]">
+          User Settings
+        </h1>
         <Card className="max-w-2xl mx-auto bg-gray-900 border-[#f7cf1d]">
           <CardHeader>
-            <CardTitle className="text-[#f7cf1d]">Your Profile Information</CardTitle>
+            <CardTitle className="text-[#f7cf1d]">
+              Your Profile Information
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center space-x-4">
@@ -57,7 +66,10 @@ export default function UserSettingsPage() {
               </Avatar>
               <div>
                 <Label htmlFor="profile-picture" className="cursor-pointer">
-                  <Button variant="outline" className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]">
+                  <Button
+                    variant="outline"
+                    className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
+                  >
                     Change Profile Picture
                   </Button>
                 </Label>
@@ -89,6 +101,5 @@ export default function UserSettingsPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
-
