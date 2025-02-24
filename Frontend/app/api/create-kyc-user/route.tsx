@@ -1,12 +1,6 @@
 import axios from "axios";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import type { NextApiRequest, NextApiResponse } from "next";
-
-type ResponseData = {
-  message?: string;
-  error?: string;
-};
 
 const SUMSUB_BASE_URL = "https://api.sumsub.com";
 const SUMSUB_APP_TOKEN = process.env.SUMSUB_TOKEN ?? "";
@@ -19,7 +13,7 @@ axios.interceptors.request.use(createSignature, function (error: any) {
 
 // This function creates a signature for the request
 function createSignature(config: any) {
-  console.log("Creating a signature for the request...");
+  console.log("Creating a signature for the creating user request...");
   const timestamp = Math.floor(Date.now() / 1000);
   const method = config.method.toUpperCase();
   const url =
@@ -31,41 +25,39 @@ function createSignature(config: any) {
   signature.update(`${timestamp}${method}${url}`);
 
   if (config.data) {
-    signature.update(config.data);
+    const dataString = JSON.stringify(config.data);
+    signature.update(dataString);
   }
 
   config.headers["X-App-Token"] = SUMSUB_APP_TOKEN;
   config.headers["X-App-Access-Sig"] = signature.digest("hex");
   config.headers["X-App-Access-Ts"] = timestamp.toString();
-
+  console.log("Finish signature config", config);
   return config;
 }
 
-export async function POST(req: NextApiRequest): Promise<NextResponse | void> {
+export async function POST(req: Request): Promise<NextResponse | void> {
   try {
-    const { userId } = req.body;
-
-    const secretKey = SUMSUB_SECRET_KEY;
-    const timestamp = Math.floor(Date.now() / 1000);
-    const method = "GET";
-    const requestUri = `/resources/applicants/-;externalUserId=${userId}/one`;
-
-    const signaturePayload =
-      `${timestamp}${method}${requestUri}`.toLocaleLowerCase();
-    const signature = crypto
-      .createHmac("sha256", secretKey)
-      .update(signaturePayload)
-      .digest("hex");
+    const body = await req.json();
+    const { userId, userEmail }: { userId: string; userEmail: string } = body;
+    const requestUri = `/resources/applicants`;
 
     const options = {
-      method: "GET",
-      url: `https://api.sumsub.com/resources/applicants/-;externalUserId=${userId}/one`,
+      method: "POST",
+      url: `${SUMSUB_BASE_URL}${requestUri}?levelName=BasicLevel`,
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        "content-type": "application/json",
+      },
+      data: {
+        externalUserId: userId,
+        email: userEmail,
+        fixedInfo: {
+          country: "CRI",
+        },
       },
     };
 
+    console.log("options", options);
     const response = await axios.request(options);
     console.log("response", response);
 
