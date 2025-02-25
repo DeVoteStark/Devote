@@ -102,6 +102,7 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
     "0x036078334509b514626504edc9fb252328d1a240e4e948bef8d0c08dff45927f";
 
   const privateKey = decryptData(encryptedPrivateKey, pin);
+  console.log("Decrypted private key", privateKey);
 
   // get new hash from combinate privateKey and variable or just the private key
   const newPrivateKeyHash = variable

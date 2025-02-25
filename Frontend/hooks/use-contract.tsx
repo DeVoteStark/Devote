@@ -5,7 +5,7 @@ import {
 } from "@/interfaces/Person";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { Abi, useContract, nethermindProvider } from "@starknet-react/core";
-import { shortString } from "starknet";
+import { Contract, RpcProvider, shortString } from "starknet";
 import { useWallet } from "./use-wallet";
 const contractAddress =
   "0x0378717a35a6d53da40a071d2854d33353b27a91cd54db87997dd660dc40a2bb";
@@ -660,6 +660,16 @@ export function useContractCustom() {
   });
   const { account } = useWallet();
 
+  const provider = new RpcProvider({
+    nodeUrl:
+      "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/IQNV8HbIxfgGVkxJZyazEK38KIgLQCIn",
+  });
+
+  const createContract = () => {
+    const contract = new Contract(abi, contractAddress, provider);
+    return contract;
+  };
+
   interface FetchFunction {
     (...args: any[]): Promise<any>;
   }
@@ -771,6 +781,36 @@ export function useContractCustom() {
     return result;
   };
 
+  const createPersonOnChain = async (person_id: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const createUserCall = newContract.populate("create_new_person", [
+      person_id,
+      account.address,
+    ]);
+    const res = await newContract.create_new_person(createUserCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const createAdminOnChain = async (person_id: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const createUserCall = newContract.populate("create_admin", [
+      person_id,
+      account.address,
+    ]);
+    const res = await newContract.create_admin(createUserCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
   const viewVotation = async (
     proposal_id: string,
     wallet_address: string
@@ -790,5 +830,7 @@ export function useContractCustom() {
     getMyProposals,
     getProposal,
     getPersonRol,
+    createPersonOnChain,
+    createAdminOnChain,
   };
 }
