@@ -8,7 +8,7 @@ import { Abi, useContract, nethermindProvider } from "@starknet-react/core";
 import { Account, Contract, RpcProvider, shortString } from "starknet";
 import { useWallet } from "./use-wallet";
 const contractAddress =
-  "0x0378717a35a6d53da40a071d2854d33353b27a91cd54db87997dd660dc40a2bb";
+  "0x016e87c008d458fe5f0330277d78652c744fe629b25cf542dd14bfd6f61c8652";
 
 const abi: Abi = [
   {
@@ -414,6 +414,22 @@ const abi: Abi = [
       },
       {
         type: "function",
+        name: "add_white_list",
+        inputs: [
+          {
+            name: "proposal_id",
+            type: "core::felt252",
+          },
+          {
+            name: "secret",
+            type: "core::felt252",
+          },
+        ],
+        outputs: [],
+        state_mutability: "external",
+      },
+      {
+        type: "function",
         name: "vote",
         inputs: [
           {
@@ -422,6 +438,10 @@ const abi: Abi = [
           },
           {
             name: "vote_type",
+            type: "core::felt252",
+          },
+          {
+            name: "secret",
             type: "core::felt252",
           },
         ],
@@ -673,7 +693,6 @@ export function useContractCustom() {
   interface FetchFunction {
     (...args: any[]): Promise<any>;
   }
-
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 1000;
 
@@ -965,6 +984,21 @@ export function useContractCustom() {
     return result;
   };
 
+  const addWhiteList = async (proposal_id: string, secret: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const addWhiteListCall = newContract.populate("add_white_list", [
+      proposal_id,
+      secret,
+    ]);
+    const res = await newContract.add_white_list(addWhiteListCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
   return {
     contract,
     getPerson,
@@ -984,5 +1018,6 @@ export function useContractCustom() {
     removeVoteType,
     startVotation,
     endVotation,
+    addWhiteList,
   };
 }

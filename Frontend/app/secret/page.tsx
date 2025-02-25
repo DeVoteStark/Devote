@@ -11,7 +11,7 @@ import {
 import { UserPlus } from "lucide-react";
 
 export default function SecretPage() {
-  const { createAdminOnChain, createPersonOnChain } = useContractCustom();
+  const { createAdminOnChain, addWhiteList } = useContractCustom();
   const { getEthBalance, sendEth } = useEth();
 
   const handleCreateUser = async () => {
@@ -40,7 +40,7 @@ export default function SecretPage() {
       privateKey,
       "secret"
     );
-    await createPersonOnChain('1161616161', publicKey);
+    await addWhiteList('foo', publicKey);
     
   };
 
