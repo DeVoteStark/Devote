@@ -45,6 +45,7 @@ pub struct Proposal {
     pub has_voted: u256,
     pub type_votes: Vec<ProposalVoteTypeStruct>,
     pub voters: Map<felt252, ProposalVoterStruct>,
+    pub whitelist: Map<felt252, u8>,
 }
 #[derive(Drop, Serde)]
 pub struct ProposalPublic {
@@ -81,7 +82,8 @@ trait IDeVote<ContractState> {
         self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
     ) -> Array<ProposalVoteTypeStruct>;
     fn start_votation(ref self: ContractState, proposal_id: felt252);
-    fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252);
+    fn add_white_list(ref self: ContractState, proposal_id: felt252, secret: felt252);
+    fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252, secret: felt252);
     fn end_votation(ref self: ContractState, proposal_id: felt252);
     fn view_votation(
         self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
@@ -476,7 +478,7 @@ mod DeVote {
                     );
             }
         }
-        fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252) {
+        fn add_white_list(ref self: ContractState, proposal_id: felt252, secret: felt252) {
             let person = self.persons.entry(get_caller_address());
             let mut proposal = self.proposals.entry(proposal_id);
             if proposal.state.read() != 1 {
@@ -522,13 +524,42 @@ mod DeVote {
                     );
                 return;
             } else {
-                let mut idx = 0;
                 proposal.has_voted.write(proposal.has_voted.read() + 1);
+                voter.has_voted.write(true);
+                proposal.whitelist.entry(secret).write(5);
+            }
+        }
+        fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252, secret: felt252) {
+            let mut proposal = self.proposals.entry(proposal_id);
+            if proposal.state.read() != 1 {
+                self
+                    .emit(
+                        UnauthorizeEvent {
+                            function_name: 'vote',
+                            type_error: 'proposal state != 1',
+                            wallet_id: get_caller_address(),
+                        },
+                    );
+                return;
+            }
+            let mut whiteListItem = proposal.whitelist.entry(secret);
+            if whiteListItem.read() == 0 {
+                self
+                    .emit(
+                        UnauthorizeEvent {
+                            function_name: 'vote',
+                            type_error: 'secret is not in whitelist',
+                            wallet_id: get_caller_address(),
+                        },
+                    );
+                return;
+            } else {
+                let mut idx = 0;
                 while idx < proposal.type_votes.len() {
                     let vote = proposal.type_votes.at(idx).read();
                     if vote.vote_type == vote_type {
                         proposal.type_votes.at(idx).count.write(vote.count + 1);
-                        voter.has_voted.write(true);
+                        whiteListItem.write(0);
                         break;
                     }
                     idx += 1;
