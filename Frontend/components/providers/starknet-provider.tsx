@@ -1,14 +1,13 @@
 "use client";
 import React from "react";
 
-import { sepolia } from "@starknet-react/chains";
+import { Chain, sepolia } from "@starknet-react/chains";
 import {
   StarknetConfig,
-  publicProvider,
   braavos,
   useInjectedConnectors,
   voyager,
-  nethermindProvider,
+  jsonRpcProvider,
 } from "@starknet-react/core";
 
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
@@ -21,9 +20,14 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     order: "random",
   });
 
-  const nevermindApiKey = process.env.NEXT_PUBLIC_NEVERMIND_API_KEY ?? "";
+  function rpc(chain: Chain) {
+    return {
+      nodeUrl:
+        "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/IQNV8HbIxfgGVkxJZyazEK38KIgLQCIn",
+    };
+  }
 
-  const provider = nethermindProvider({ apiKey: nevermindApiKey });
+  const provider = jsonRpcProvider({ rpc });
 
   return (
     <StarknetConfig

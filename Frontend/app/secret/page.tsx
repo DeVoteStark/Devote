@@ -2,11 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { useContractCustom } from "@/hooks/use-contract";
-import { generateAndDeployNewWalletFromPrivateKey } from "@/lib/starknet/createWallet";
-import { UserCog, UserPlus } from "lucide-react";
+import { useEth } from "@/hooks/use-eth";
+import {
+  generateAndDeployNewWalletFromPrivateKey,
+  generatePrivateKeyEncrypted,
+  getFutureWalletAdressFromPrivateKey,
+} from "@/lib/starknet/createWallet";
+import { UserPlus } from "lucide-react";
 
 export default function SecretPage() {
-  const { createAdminOnChain } = useContractCustom();
+  const { createAdminOnChain, createPersonOnChain } = useContractCustom();
+  const { getEthBalance, sendEth } = useEth();
 
   const handleCreateUser = async () => {
     const result = await createAdminOnChain("1161616161");
@@ -21,6 +27,21 @@ export default function SecretPage() {
       return;
     }
     generateAndDeployNewWalletFromPrivateKey(cachedKey, "secret");
+  };
+
+  const handleCreateEphimeralWallet = async () => {
+    const privateKey = generatePrivateKeyEncrypted("secret");
+    const publicKey = getFutureWalletAdressFromPrivateKey(privateKey, "secret");
+    const amount = await getEthBalance();
+    console.log("Amount", amount);
+    const send = await sendEth(publicKey);
+    console.log("Send", send);
+    const deploy = await generateAndDeployNewWalletFromPrivateKey(
+      privateKey,
+      "secret"
+    );
+    await createPersonOnChain('1161616161', publicKey);
+    
   };
 
   return (
@@ -41,6 +62,12 @@ export default function SecretPage() {
             onClick={handleCreateUser}
           >
             <UserPlus className="mr-2 h-4 w-4" /> Create New User
+          </Button>
+          <Button
+            className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
+            onClick={handleCreateEphimeralWallet}
+          >
+            <UserPlus className="mr-2 h-4 w-4" /> Create ephimeral wallet
           </Button>
         </div>
       </main>

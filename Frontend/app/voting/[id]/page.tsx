@@ -18,6 +18,7 @@ import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { useParams } from "next/navigation";
 import { useAccount } from "@starknet-react/core";
 import AIAgent from "@/app/components/AIAgent";
+import { getFutureWalletAdressFromPrivateKey } from "@/lib/starknet/createWallet";
 
 export default function VotingStationPage() {
   const [selectedOption, setSelectedOption] = useState<string>("");
@@ -44,15 +45,17 @@ export default function VotingStationPage() {
 
   const handleVote = async () => {
     if (selectedOption) {
+      const cachedKey = localStorage.getItem("encryptedPrivateKey");
+      if (!cachedKey) {
+        console.error("No cached key or account address found");
+        return;
+      }
       // Here you would typically send the vote to your backend
-      console.log(`Voted for option: ${selectedOption}`);
-      const result = await vote(params.id, selectedOption);
-      console.log("Result votation", result);
-      if (!!proposal)
-        setProposal({
-          ...proposal,
-          voter: { has_voted: true, role: proposal?.voter.role ?? 0 },
-        });
+      const newPublicKey = getFutureWalletAdressFromPrivateKey(
+        cachedKey,
+        "secret",
+      );
+      console.log("New public key", newPublicKey);
     }
   };
 

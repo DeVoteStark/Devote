@@ -5,7 +5,7 @@ import {
 } from "@/interfaces/Person";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { Abi, useContract, nethermindProvider } from "@starknet-react/core";
-import { Contract, RpcProvider, shortString } from "starknet";
+import { Account, Contract, RpcProvider, shortString } from "starknet";
 import { useWallet } from "./use-wallet";
 const contractAddress =
   "0x0378717a35a6d53da40a071d2854d33353b27a91cd54db87997dd660dc40a2bb";
@@ -706,6 +706,7 @@ export function useContractCustom() {
   ): Promise<ProposalPublic[]> => {
     const proposalIds: PersonProposalStruct[] =
       await contract?.get_person_proposals(wallet_address);
+    console.log("proposalIds", proposalIds);
     const proposals: ProposalPublic[] = [];
     for (const proposalItem of proposalIds) {
       const proposal: ProposalPublic = await contract?.get_proposal(
@@ -772,16 +773,22 @@ export function useContractCustom() {
     return rol;
   };
 
-  const vote = async (proposal_id: string, vote_type: string) => {
-    if (!account) {
-      throw new Error("Account not connected");
-    }
-    contract?.connect(account);
-    const result = await contract?.vote(proposal_id, vote_type);
+  const vote = async (
+    proposal_id: string,
+    vote_type: string,
+    privateKey: string,
+    publicKey: string
+  ) => {
+    const ephimeralAccount = new Account(provider, publicKey, privateKey);
+    const newContract: Contract = createContract();
+    newContract.connect(ephimeralAccount);
+    const voteCall = newContract.populate("vote", [proposal_id, vote_type]);
+    const res = await newContract.vote(voteCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
     return result;
   };
 
-  const createPersonOnChain = async (person_id: string) => {
+  const createPersonOnChain = async (person_id: string, walletId?: string) => {
     if (!account) {
       throw new Error("Account not connected");
     }
@@ -789,7 +796,7 @@ export function useContractCustom() {
     newContract.connect(account);
     const createUserCall = newContract.populate("create_new_person", [
       person_id,
-      account.address,
+      walletId ?? account.address,
     ]);
     const res = await newContract.create_new_person(createUserCall.calldata);
     const result = await provider.waitForTransaction(res.transaction_hash);

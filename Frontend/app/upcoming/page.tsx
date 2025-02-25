@@ -12,7 +12,7 @@ import { loginStatus } from "@/interfaces/Login";
 export default function UpcomingVotingsPage() {
   const { getMyProposals } = useContractCustom();
   const [upcomingVotings, setUpcomingVotings] = useState<ProposalPublic[]>([]);
-  const { connectionStatus, address, disconnectWallet } = useWallet();
+  const { connectionStatus, address } = useWallet();
 
   useEffect(() => {
     console.log(

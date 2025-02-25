@@ -52,17 +52,11 @@ export const generatePrivateKeyEncrypted = (pin: string): string => {
 
 export const getFutureWalletAdressFromPrivateKey = (
   encryptedPrivateKey: string,
-  pin: string,
-  variable?: string
+  pin: string
 ) => {
   const privateKey = decryptData(encryptedPrivateKey, pin);
 
-  // get new hash from combinate privateKey and variable or just the private key
-  const newPrivateKeyHash = variable
-    ? getHashFromString(privateKey + variable)
-    : privateKey;
-
-  const starkKeyPubAX = ec.starkCurve.getStarkKey(newPrivateKeyHash);
+  const starkKeyPubAX = ec.starkCurve.getStarkKey(privateKey);
 
   const argentXaccountClassHash =
     "0x036078334509b514626504edc9fb252328d1a240e4e948bef8d0c08dff45927f";
@@ -94,7 +88,8 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
   console.log("The RPC key is:", RPC_KEY);
   // connect provider
   const provider = new RpcProvider({
-    nodeUrl: `https://starknet-sepolia.infura.io/v3/${RPC_KEY}`,
+    nodeUrl:
+      "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/IQNV8HbIxfgGVkxJZyazEK38KIgLQCIn",
   });
 
   //new Argent X account v0.4.0
@@ -104,12 +99,7 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
   const privateKey = decryptData(encryptedPrivateKey, pin);
   console.log("Decrypted private key", privateKey);
 
-  // get new hash from combinate privateKey and variable or just the private key
-  const newPrivateKeyHash = variable
-    ? getHashFromString(privateKey + variable)
-    : privateKey;
-
-  const starkKeyPubAX = ec.starkCurve.getStarkKey(newPrivateKeyHash);
+  const starkKeyPubAX = ec.starkCurve.getStarkKey(privateKey);
 
   // Calculate future address of the ArgentX account
   const axSigner = new CairoCustomEnum({
@@ -140,4 +130,5 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
   const { transaction_hash: AXdAth, contract_address: AXcontractFinalAddress } =
     await accountAX.deployAccount(deployAccountPayload);
   console.log("✅ ArgentX wallet deployed at:", AXcontractFinalAddress, AXdAth);
+  return AXcontractFinalAddress;
 };
