@@ -11,9 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
+import { useContractCustom } from "@/hooks/use-contract";
 
 export default function EditProposalPage({ params }: { params: { id: string } }) {
   const [proposalId, setProposalId] = useState(params.id);
+  const { addVoter } = useContractCustom();
   const [selectedVoter, setSelectedVoter] = useState("");
   const [voterRole, setVoterRole] = useState("voter");
   const [showRoleSelection, setShowRoleSelection] = useState(false);
@@ -24,7 +26,6 @@ export default function EditProposalPage({ params }: { params: { id: string } })
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch users from the API
     const fetchUsers = async () => {
       try {
         const res = await fetch("/api/users");
@@ -33,7 +34,6 @@ export default function EditProposalPage({ params }: { params: { id: string } })
           return;
         }
         const data = await res.json();
-        // Se espera que la respuesta tenga la propiedad "users"
         setUsers(data.users);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -43,14 +43,33 @@ export default function EditProposalPage({ params }: { params: { id: string } })
     fetchUsers();
   }, []);
 
-  const handleAddVoter = () => {
-    console.log("Adding voter:", { proposalId, selectedVoter });
-    setSelectedVoter("");
-    toast({
-      title: "Voter Added",
-      description: "The voter has been successfully added to the proposal.",
-      duration: 3000,
-    });
+  const handleAddVoter = async () => {
+    try {
+      if (!proposalId || !selectedVoter) {
+        toast({
+          title: "Error",
+          description: "Proposal ID and voter wallet must be provided.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const result = await addVoter(proposalId, selectedVoter);
+      console.log("Voter added result:", result);
+      toast({
+        title: "Voter Added",
+        description: "The voter has been successfully added to the proposal.",
+        duration: 3000,
+      });
+      setSelectedVoter("");
+    } catch (error) {
+      console.error("Error adding voter:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add voter to the proposal.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleModifyVoter = () => {

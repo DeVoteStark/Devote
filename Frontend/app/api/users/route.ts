@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     await newUser.save();
 
     const emailEncoded = encodeURI(newUser.email);
-    const sdkLink = `http://localhost:3000/verify?kycId=${newUser._id}&email=${emailEncoded}`
+    const sdkLink = `http://localhost:3000/verification-summitted?kycId=${newUser._id}&email=${emailEncoded}`
 
     const emailService = new EmailService();
     const subject = "Complete your KYC process";
