@@ -4,7 +4,7 @@ export interface IUser extends Document {
   walletId: string;
   name: string;
   email: string;
-  hasIne: string;
+  hashIne: string;
   kycStatus: "pending" | "inProcess" | "rejected" | "accepted";
   kycId: string;
   secretKey: string;
@@ -15,7 +15,7 @@ const UserSchema = new Schema<IUser>(
     walletId: { type: String, default: "" },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    hasIne: { type: String, required: true },
+    hashIne: { type: String, required: true },
     kycStatus: {
       type: String,
       enum: ["pending", "inProcess", "rejected", "accepted"],

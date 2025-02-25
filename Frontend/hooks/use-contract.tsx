@@ -4,7 +4,7 @@ import {
   PersonPublic,
 } from "@/interfaces/Person";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
-import { Abi, useContract } from "@starknet-react/core";
+import { Abi, useContract, nethermindProvider } from "@starknet-react/core";
 import { shortString } from "starknet";
 import { useWallet } from "./use-wallet";
 const contractAddress =
@@ -660,6 +660,36 @@ export function useContractCustom() {
   });
   const { account } = useWallet();
 
+  interface FetchFunction {
+    (...args: any[]): Promise<any>;
+  }
+
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1000;
+
+  async function fetchWithRetry(
+    fetchFunction: FetchFunction,
+    ...args: any[]
+  ): Promise<any> {
+    let attempts = 0;
+    while (attempts < MAX_RETRIES) {
+      try {
+        return await fetchFunction(...args);
+      } catch (error: any) {
+        if (error.response && error.response.status === 429) {
+          attempts++;
+          if (attempts < MAX_RETRIES) {
+            await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+          } else {
+            throw new Error("Max retries reached");
+          }
+        } else {
+          throw error;
+        }
+      }
+    }
+  }
+
   const getMyProposals = async (
     status: number = 0,
     wallet_address: string
@@ -718,7 +748,10 @@ export function useContractCustom() {
   };
 
   const getPersonRol = async (wallet_address: string): Promise<PersolRol> => {
-    const rawRol = await contract?.get_person_rol(wallet_address);
+    const rawRol = await fetchWithRetry(
+      contract?.get_person_rol,
+      wallet_address
+    );
     const decodedRol = shortString.decodeShortString(rawRol);
     console.log("DecodedRol", decodedRol);
     let rol = PersolRol.noUser;

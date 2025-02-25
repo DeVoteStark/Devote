@@ -7,10 +7,12 @@ import { useRouter } from "next/navigation";
 
 interface SUserVerificationProps {
   userId: string;
+  userEmail: string;
 }
 
 export const SumsubVerificationStatus = ({
   userId,
+  userEmail,
 }: SUserVerificationProps) => {
   const router = useRouter();
   const [externalUserId, setExternalUserId] = useState(userId);
@@ -25,7 +27,7 @@ export const SumsubVerificationStatus = ({
     try {
       const response = await axios.post("/api/get-kyc-access-token", {
         userId: externalUserId,
-        userEmail: "pjmq2@hotmail.com",
+        userEmail: userEmail,
       });
 
       const { url } = response.data;
@@ -52,14 +54,14 @@ export const SumsubVerificationStatus = ({
           }
           config={{
             lang: "en",
-            email: "robertdev2010@gmail.com",
-            phone: "50685215747",
+            email: userEmail,
+            phone: externalUserId,
           }}
           options={{ addViewportTag: false, adaptIframeHeight: true }}
           onMessage={(message: any) => {
             console.log("message", message);
             if (message == "idCheck.onApplicantSubmitted") {
-              router.push("/verificationSubmitted");
+              router.push("/verification-submitted?id=" + externalUserId);
             }
           }}
           onError={() => {
