@@ -33,10 +33,10 @@ export default function Header() {
       router.push("/");
   }, [connectionStatus]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (walletRol === PersolRol.noUser && pathname !== "/verify")
       router.push("/verify");
-  }, [walletRol, pathname]);
+  }, [walletRol, pathname]);*/
 
   const handleDisconnect = (): void => {
     disconnectWallet();
