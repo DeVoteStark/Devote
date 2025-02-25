@@ -17,6 +17,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useWallet } from "@/hooks/use-wallet";
 import { loginStatus } from "@/interfaces/Login";
+import { User } from "@/interfaces/User";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,15 +26,32 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { connectWallet, connectionStatus } = useWallet();
+  const { toast } = useToast();
 
-  const handleLogin = () => {
-    // Todo: Implement login logic from DB
-    console.log("conecting wallet");
-    connectWallet(
-      "294af90c34c0c2198534e93539c6494e8c7124c027df69be5cc9cf2522fb665ac1629955fd09ae0d2b99a2fc6e0ffc78b1c5d8a74a098fcf1bb2f85990010551b515fa4d1ca47311f70207b5bad380a672c554feec1573c130627a30975a0522327ed238cec77d433406eda7fd94ff0eaf01aedb271df244e796dd19bd180caeb6c771ebd482d2ef3d48b82acd1c2cc4f8d8063efb2e1ca00e60c5355cda3d5b07e0067729eed677337e0b3404cd13e7",
-      "1234",
-      "0x6e00557e1d7bef4c2411a73db351f12cc19e388d17d022a97e5430b029ecd13"
-    );
+  const handleLogin = async () => {
+    try {
+      const encodedEmail = encodeURIComponent(email);
+      const res = await fetch(`/api/login/${encodedEmail}`);
+      const user: User = await res.json();
+      console.log("User data:", user);
+      if (user?.secretKey && user?.walletId) {
+        console.log("conecting wallet");
+        connectWallet(user.secretKey, password, user.walletId);
+      } else {
+        toast({
+          title: "Error",
+          description: "Error logging in",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+      toast({
+        title: "Error",
+        description: "Error logging in",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -94,6 +113,7 @@ export default function LoginPage() {
             <Button
               className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
               onClick={handleLogin}
+              disabled={!email || !password}
             >
               Login
             </Button>

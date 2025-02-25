@@ -8,6 +8,7 @@ import {
   braavos,
   useInjectedConnectors,
   voyager,
+  nethermindProvider,
 } from "@starknet-react/core";
 
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
@@ -20,10 +21,14 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     order: "random",
   });
 
+  const nevermindApiKey = process.env.NEXT_PUBLIC_NEVERMIND_API_KEY ?? "";
+
+  const provider = nethermindProvider({ apiKey: nevermindApiKey });
+
   return (
     <StarknetConfig
       chains={[sepolia]}
-      provider={publicProvider()}
+      provider={provider}
       connectors={connectors}
       explorer={voyager}
     >
