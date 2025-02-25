@@ -5,23 +5,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useContractCustom } from "@/hooks/use-contract";
 import { useEffect, useState } from "react";
 import { ProposalPublic } from "@/interfaces/Proposal";
-import { useAccount } from "@starknet-react/core";
 import Header from "../components/Header";
+import { useWallet } from "@/hooks/use-wallet";
+import { loginStatus } from "@/interfaces/Login";
 
 export default function UpcomingVotingsPage() {
   const { getMyProposals } = useContractCustom();
   const [upcomingVotings, setUpcomingVotings] = useState<ProposalPublic[]>([]);
-  const { address, isConnected } = useAccount();
+  const { connectionStatus, address, disconnectWallet } = useWallet();
 
   useEffect(() => {
+    console.log(
+      "UpcomingVotingsPage",
+      address,
+      connectionStatus === loginStatus.CONNECTED
+    );
     const fetchData = async () => {
-      if (!!address && isConnected) {
+      if (!!address && connectionStatus === loginStatus.CONNECTED) {
         const proposals = await getMyProposals(0, address);
         setUpcomingVotings(proposals);
       }
     };
     fetchData();
-  }, [address, isConnected]);
+  }, [address, connectionStatus]);
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
