@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useContractCustom } from "@/hooks/use-contract";
 import { useEth } from "@/hooks/use-eth";
 import {
+  decryptData,
+  encryptData,
   generateAndDeployNewWalletFromPrivateKey,
   generatePrivateKeyEncrypted,
   getFutureWalletAdressFromPrivateKey,
@@ -11,7 +13,7 @@ import {
 import { UserPlus } from "lucide-react";
 
 export default function SecretPage() {
-  const { createAdminOnChain, addWhiteList } = useContractCustom();
+  const { createAdminOnChain, addWhiteList, vote } = useContractCustom();
   const { getEthBalance, sendEth } = useEth();
 
   const handleCreateUser = async () => {
@@ -40,8 +42,10 @@ export default function SecretPage() {
       privateKey,
       "secret"
     );
-    await addWhiteList('foo', publicKey);
-    
+    const secretForWhiteList = encryptData(publicKey, "secret");
+    const secretKeyDecrypted = decryptData(privateKey, "secret");
+    await addWhiteList("foo", secretForWhiteList);
+    await vote("foo", "1", secretForWhiteList, secretKeyDecrypted, publicKey);
   };
 
   return (

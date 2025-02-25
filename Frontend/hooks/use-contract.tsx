@@ -795,13 +795,14 @@ export function useContractCustom() {
   const vote = async (
     proposal_id: string,
     vote_type: string,
+    secret: string,
     privateKey: string,
     publicKey: string
   ) => {
     const ephimeralAccount = new Account(provider, publicKey, privateKey);
     const newContract: Contract = createContract();
     newContract.connect(ephimeralAccount);
-    const voteCall = newContract.populate("vote", [proposal_id, vote_type]);
+    const voteCall = newContract.populate("vote", [proposal_id, vote_type, secret]);
     const res = await newContract.vote(voteCall.calldata);
     const result = await provider.waitForTransaction(res.transaction_hash);
     return result;
