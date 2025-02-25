@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,37 +16,84 @@ export default function CreateUserModal({ isOpen, onClose }: CreateUserModalProp
   const [email, setEmail] = useState("")
   const [userId, setUserId] = useState("")
   const [userName, setUserName] = useState("")
+  const [isCreating, setIsCreating] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [searchError, setSearchError] = useState("")
   const { toast } = useToast()
 
-  useEffect(() => {
-    // Simulating database lookup based on user ID
-    // In a real application, this would be an API call to your backend
-    const fetchUserName = async () => {
-      if (userId) {
-        // Simulated delay to mimic API call
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        // Dummy logic to generate a name based on ID
-        const generatedName = `User ${userId}`
-        setUserName(generatedName)
+  // Función que se ejecuta al presionar el botón "Search" para buscar el citizen
+  const handleSearchCitizen = async () => {
+    if (!userId) {
+      setSearchError("Please enter a User ID.")
+      return
+    }
+    setSearchLoading(true)
+    setSearchError("")
+    try {
+      const res = await fetch(`/api/citizens?ine=${encodeURIComponent(userId)}`)
+      if (!res.ok) {
+        setUserName("")
+        setSearchError("Citizen not found.")
+        return
+      }
+      const data = await res.json()
+      // Se asume que la respuesta tiene los campos firstName y lastName
+      if (data && data.firstName && data.lastName) {
+        const fullName = `${data.firstName} ${data.lastName}`
+        setUserName(fullName)
       } else {
         setUserName("")
+        setSearchError("Citizen not found or invalid data.")
       }
+    } catch (error) {
+      console.error("Error searching citizen:", error)
+      setUserName("")
+      setSearchError("Error searching citizen.")
+    } finally {
+      setSearchLoading(false)
     }
+  }
 
-    fetchUserName()
-  }, [userId])
-
-  const handleCreateUser = () => {
-    console.log("Creating user:", { email, userId, userName })
-    toast({
-      title: "User Created",
-      description: `New user account created for ${userName}`,
-      duration: 3000,
-    })
-    setEmail("")
-    setUserId("")
-    setUserName("")
-    onClose()
+  // Función que se ejecuta al presionar "Create User"
+  const handleCreateUser = async () => {
+    setIsCreating(true)
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // Enviamos "ine" usando el valor de userId (que es el INE del citizen)
+        body: JSON.stringify({ email, ine: userId })
+      })
+      if (!res.ok) {
+        const errorData = await res.json()
+        toast({
+          title: "Error",
+          description: errorData.message || "Failed to create user",
+          variant: "destructive",
+        })
+        setIsCreating(false)
+        return
+      }
+      const data = await res.json()
+      toast({
+        title: "User Created",
+        description: `New user account created for ${data.user.name}`,
+        duration: 3000,
+      })
+      setEmail("")
+      setUserId("")
+      setUserName("")
+      onClose()
+    } catch (error) {
+      console.error("Error creating user:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create user",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   return (
@@ -66,15 +113,25 @@ export default function CreateUserModal({ isOpen, onClose }: CreateUserModalProp
               className="bg-gray-800 border-gray-700 text-white"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="userId">User ID</Label>
-            <Input
-              id="userId"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-white"
-            />
+          <div className="flex items-end space-x-2">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="userId">User ID (INE)</Label>
+              <Input
+                id="userId"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+            <Button
+              onClick={handleSearchCitizen}
+              disabled={searchLoading || !userId}
+              className="mb-2 bg-blue-500 text-white hover:bg-blue-600"
+            >
+              {searchLoading ? "Searching..." : "Search"}
+            </Button>
           </div>
+          {searchError && <p className="text-red-500 text-sm">{searchError}</p>}
           <div className="space-y-2">
             <Label htmlFor="userName">User Name</Label>
             <Input
@@ -84,12 +141,15 @@ export default function CreateUserModal({ isOpen, onClose }: CreateUserModalProp
               className="bg-gray-800 border-gray-700 text-white opacity-50"
             />
           </div>
-          <Button onClick={handleCreateUser} className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]">
-            Create User
+          <Button
+            onClick={handleCreateUser}
+            disabled={!userName || isCreating}
+            className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
+          >
+            {isCreating ? "Creating..." : "Create User"}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   )
 }
-

@@ -22,7 +22,7 @@ const UserSchema = new Schema<IUser>(
       default: "pending",
     },
     kycId: { type: String, default: "" },
-    secretKey: { type: String, default: "" },
+    secretKey: { type: String, required: true },
   },
   { timestamps: true }
 );

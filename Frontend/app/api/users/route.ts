@@ -5,6 +5,10 @@ import User from "../../../models/user";
 import crypto from "crypto";
 import { createKyc, getSdkLink } from "../../../lib/kyc";
 import { EmailService } from "../../../lib/email";
+import {
+  generatePrivateKeyEncrypted,
+  getFutureWalletAdressFromPrivateKey,
+} from "@/lib/starknet/createWallet";
 
 function hashIne(ine: string): string {
   return crypto.createHash("sha256").update(ine).digest("hex");
@@ -43,13 +47,21 @@ export async function POST(req: Request) {
 
     const name = `${citizen.firstName} ${citizen.lastName}`;
 
+    const privateKey = generatePrivateKeyEncrypted("1234");
+
+    const walletAddress = getFutureWalletAdressFromPrivateKey(
+      privateKey,
+      "1234"
+    );
+
     const newUser = new User({
-      walletId: "",
+      walletId: walletAddress,
       name,
       email,
       hasIne: hashedIne,
       kycStatus: "pending",
       kycId: "",
+      secretKey: privateKey,
     });
 
     await newUser.save();
