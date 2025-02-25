@@ -821,6 +821,142 @@ export function useContractCustom() {
     return result;
   };
 
+  const changePersonRol = async (walletAddress: string, new_rol: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const changeRolCall = newContract.populate("change_person_rol", [
+      walletAddress,
+      new_rol,
+    ]);
+    const res = await newContract.change_person_rol(changeRolCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const createProposal = async (proposal_id: string, name: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const createProposalCall = newContract.populate("create_proposal", [
+      proposal_id,
+      name,
+    ]);
+    const res = await newContract.create_proposal(createProposalCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const addVoter = async (proposal_id: string, voter_wallet: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const addVoterCall = newContract.populate("add_voter", [
+      proposal_id,
+      voter_wallet,
+    ]);
+    const res = await newContract.add_voter(addVoterCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const modifyVoters = async (
+    proposal_id: string,
+    voter_id: string,
+    role: number
+  ) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const modifyVotersCall = newContract.populate("modify_voters", [
+      proposal_id,
+      voter_id,
+      role,
+    ]);
+    const res = await newContract.modify_voters(modifyVotersCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const removeVoters = async (proposal_id: string, voter_id: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const removeVotersCall = newContract.populate("remove_voters", [
+      proposal_id,
+      voter_id,
+    ]);
+    const res = await newContract.remove_voters(removeVotersCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const addVoteType = async (proposal_id: string, vote_type: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const addVoteTypeCall = newContract.populate("add_vote_type", [
+      proposal_id,
+      vote_type,
+    ]);
+    const res = await newContract.add_vote_type(addVoteTypeCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const removeVoteType = async (proposal_id: string, vote_type: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const removeVoteTypeCall = newContract.populate("remove_vote_type", [
+      proposal_id,
+      vote_type,
+    ]);
+    const res = await newContract.remove_vote_type(removeVoteTypeCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const startVotation = async (proposal_id: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const startVotationCall = newContract.populate("start_votation", [
+      proposal_id,
+    ]);
+    const res = await newContract.start_votation(startVotationCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
+  const endVotation = async (proposal_id: string) => {
+    if (!account) {
+      throw new Error("Account not connected");
+    }
+    const newContract: Contract = createContract();
+    newContract.connect(account);
+    const endVotationCall = newContract.populate("end_votation", [proposal_id]);
+    const res = await newContract.end_votation(endVotationCall.calldata);
+    const result = await provider.waitForTransaction(res.transaction_hash);
+    return result;
+  };
+
   const viewVotation = async (
     proposal_id: string,
     wallet_address: string
