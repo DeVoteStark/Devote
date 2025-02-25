@@ -18,22 +18,31 @@ import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { useParams } from "next/navigation";
 import { useAccount } from "@starknet-react/core";
 import AIAgent from "@/app/components/AIAgent";
-import { getFutureWalletAdressFromPrivateKey } from "@/lib/starknet/createWallet";
+import {
+  decryptData,
+  encryptData,
+  generateAndDeployNewWalletFromPrivateKey,
+  generatePrivateKeyEncrypted,
+  getFutureWalletAdressFromPrivateKey,
+} from "@/lib/starknet/createWallet";
+import { useEth } from "@/hooks/use-eth";
+import { useWallet } from "@/hooks/use-wallet";
+import { loginStatus } from "@/interfaces/Login";
 
 export default function VotingStationPage() {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [proposal, setProposal] = useState<ProposalPublic>();
-  const { getProposal, vote } = useContractCustom();
+  const { getProposal, vote, addWhiteList } = useContractCustom();
+  const { getEthBalance, sendEth } = useEth();
   const [votingOptions, setVotingOptions] = useState<ProposalVoteTypeStruct[]>(
     []
   );
   const params = useParams<{ id: string }>();
-  const { address, isConnected } = useAccount();
+  const { connectionStatus, address } = useWallet();
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Proposal", isConnected, address);
-      if (!!address && isConnected) {
+      if (!!address && connectionStatus === loginStatus.CONNECTED) {
         const proposal = await getProposal(params.id, address);
         setVotingOptions(proposal.type_votes);
         console.log("Proposal", proposal);
@@ -41,21 +50,38 @@ export default function VotingStationPage() {
       }
     };
     fetchData();
-  }, [params.id, address, isConnected]);
+  }, [params.id, address, connectionStatus]);
 
   const handleVote = async () => {
-    if (selectedOption) {
-      const cachedKey = localStorage.getItem("encryptedPrivateKey");
-      if (!cachedKey) {
-        console.error("No cached key or account address found");
-        return;
-      }
-      // Here you would typically send the vote to your backend
-      const newPublicKey = getFutureWalletAdressFromPrivateKey(
-        cachedKey,
-        "secret",
+    if (selectedOption && params.id) {
+      const privateKey = generatePrivateKeyEncrypted("secret");
+      const publicKey = getFutureWalletAdressFromPrivateKey(
+        privateKey,
+        "secret"
       );
-      console.log("New public key", newPublicKey);
+      const amount = await getEthBalance();
+      console.log("Amount", amount);
+      const send = await sendEth(publicKey);
+      console.log("Send", send);
+      const deploy = await generateAndDeployNewWalletFromPrivateKey(
+        privateKey,
+        "secret"
+      );
+      const secretForWhiteList = encryptData(privateKey, "secret").substring(
+        0,
+        15
+      );
+      const secretKeyDecrypted = decryptData(privateKey, "secret");
+      const resWhiteList = await addWhiteList(params.id, secretForWhiteList);
+      console.log("WhiteList", resWhiteList);
+      const resVote = await vote(
+        params.id,
+        selectedOption,
+        secretForWhiteList,
+        secretKeyDecrypted,
+        publicKey
+      );
+      console.log("Vote", resVote);
     }
   };
 

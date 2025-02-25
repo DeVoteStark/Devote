@@ -60,7 +60,7 @@ export function useEth() {
     contract.connect(account);
     const sendETHCall = contract.populate("transfer", {
       recipient: receiveWallet,
-      amount: cairo.uint256(29000000000000),
+      amount: cairo.uint256(35000000000000),
     });
     const res = await contract.transfer(sendETHCall.calldata);
     console.log("res", res);

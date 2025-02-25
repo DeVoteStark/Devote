@@ -67,12 +67,6 @@ export default function SecretPage() {
           >
             <UserPlus className="mr-2 h-4 w-4" /> Create New User
           </Button>
-          <Button
-            className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
-            onClick={handleCreateEphimeralWallet}
-          >
-            <UserPlus className="mr-2 h-4 w-4" /> Create ephimeral wallet
-          </Button>
         </div>
       </main>
     </div>
