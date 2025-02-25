@@ -73,14 +73,14 @@ export async function POST(req: Request) {
     await newUser.save();
 
     const emailEncoded = encodeURI(newUser.email);
-    const sdkLink = `http://localhost:3000/verification-summitted?kycId=${newUser._id}&email=${emailEncoded}`
+    const sdkLink = `https://devote.site/verify?kycId=${newUser._id}&email=${emailEncoded}`;
 
     const emailService = new EmailService();
     const subject = "Complete your KYC process";
     const text = `Please use the following link to complete your KYC process: ${sdkLink}`;
     const html = `<p>Please use the following link to complete your KYC process:</p>
                   <p><a href="${sdkLink}">${sdkLink}</a></p>`;
-                        
+
     await emailService.sendMail(newUser.email, subject, text, html);
 
     return NextResponse.json(
@@ -88,7 +88,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("Error creating user with KYC:", error?.response?.data || error.message);
+    console.error(
+      "Error creating user with KYC:",
+      error?.response?.data || error.message
+    );
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -103,6 +106,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ users }, { status: 200 });
   } catch (error: any) {
     console.error("Error retrieving users:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
