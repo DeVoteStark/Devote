@@ -18,7 +18,7 @@ export interface Person {
 
 export interface PersonPublic {
   wallet_id: string;
-  id_number: string;
+  id_number: number;
   role: string;
   proposals: PersonProposalStruct[];
 }

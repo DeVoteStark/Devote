@@ -21,6 +21,7 @@ import { loginStatus } from "@/interfaces/Login";
 export default function Header() {
   const { connectionStatus, address, disconnectWallet } = useWallet();
   const { getPersonRol } = useContractCustom();
+  const { getPerson } = useContractCustom();
   const router = useRouter();
   const [walletRol, setWalletRol] = useState<PersolRol>(PersolRol.user);
   const pathname = usePathname();
@@ -47,6 +48,8 @@ export default function Header() {
     const fetchData = async () => {
       if (!address) return;
       const rol = await getPersonRol(address);
+      const person = await getPerson(address);
+      console.log("person :", person);
       setWalletRol(rol);
     };
     if (address) fetchData();

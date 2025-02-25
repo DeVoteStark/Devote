@@ -95,3 +95,14 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    await connectToDb();
+    const users = await User.find({}).lean().exec();
+    return NextResponse.json({ users }, { status: 200 });
+  } catch (error: any) {
+    console.error("Error retrieving users:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+  }
+}

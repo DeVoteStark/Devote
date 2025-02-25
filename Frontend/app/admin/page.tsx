@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,12 @@ import { PlusCircle, UserPlus, UserCog } from "lucide-react"
 import CreateProposalModal from "../components/CreateProposalModal"
 import CreateUserModal from "../components/CreateUserModal"
 import ModifyUserModal from "../components/ModifyUserModal"
+import { useContractCustom } from "@/hooks/use-contract"
+import { ProposalPublic } from "@/interfaces/Proposal"
+import { useWallet } from "@/hooks/use-wallet";
+import { loginStatus } from "@/interfaces/Login";
+
+
 
 const projects = [
   { id: "1", name: "City Park Renovation", status: "active" },
@@ -22,6 +28,24 @@ export default function AdminPage() {
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false)
   const [isUserModalOpen, setIsUserModalOpen] = useState(false)
   const [isModifyUserModalOpen, setIsModifyUserModalOpen] = useState(false)
+  const { getMyProposals } = useContractCustom()
+  const [proposals, setProposals] = useState<ProposalPublic[]>([])
+  const { connectionStatus, address } = useWallet();
+
+  useEffect(() => {
+    console.log(
+      "UpcomingVotingsPage",
+      address,
+      connectionStatus === loginStatus.CONNECTED
+    );
+    const fetchData = async () => {
+      if (!!address && connectionStatus === loginStatus.CONNECTED) {
+        const proposals = await getMyProposals(0, address);
+        setProposals(proposals);
+      }
+    };
+    fetchData();
+  }, [address, connectionStatus]);
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
@@ -46,15 +70,15 @@ export default function AdminPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <Card key={project.id} className="bg-gray-900 border-[#f7cf1d]">
+          {proposals.map((proposal) => (
+            <Card key={proposal.id} className="bg-gray-900 border-[#f7cf1d]">
               <CardHeader>
-                <CardTitle className="text-[#f7cf1d]">{project.name}</CardTitle>
+                <CardTitle className="text-[#f7cf1d]">{proposal.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-300 mb-4">Status: {project.status}</p>
+                <p className="text-gray-300 mb-4">Status: Draft</p>
                 <Button asChild className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]">
-                  <Link href={`/admin/edit-proposal/${project.id}`}>Edit Proposal</Link>
+                  <Link href={`/admin/edit-proposal/${proposal.id}`}>Edit Proposal</Link>
                 </Button>
               </CardContent>
             </Card>

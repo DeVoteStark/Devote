@@ -754,6 +754,16 @@ export function useContractCustom() {
 
   const getPerson = async (wallet_address: string): Promise<PersonPublic> => {
     const result: PersonPublic = await contract?.get_person(wallet_address);
+    result.wallet_id = shortString.decodeShortString(result.wallet_id);
+    result.id_number = Number(result.id_number);
+    result.role = shortString.decodeShortString(result.role);
+    result.proposals = result.proposals.map((proposal) => {
+      proposal.proposal_id = shortString.decodeShortString(
+        proposal.proposal_id
+      );
+      proposal.role = Number(proposal.role);
+      return proposal;
+    });
     return result;
   };
 
