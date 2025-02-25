@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       walletId: walletAddress,
       name,
       email,
-      hasIne: hashedIne,
+      hashIne: hashedIne,
       kycStatus: "pending",
       kycId: "",
       secretKey: privateKey,
@@ -69,9 +69,11 @@ export async function POST(req: Request) {
     const kycId = await createKyc(String(newUser._id), newUser.email);
 
     newUser.kycId = kycId;
+
     await newUser.save();
 
-    const sdkLink = await getSdkLink(String(newUser._id));
+    const emailEncoded = encodeURI(newUser.email);
+    const sdkLink = `http://localhost:3000/verify?kycId=${newUser._id}&email=${emailEncoded}`
 
     const emailService = new EmailService();
     const subject = "Complete your KYC process";
