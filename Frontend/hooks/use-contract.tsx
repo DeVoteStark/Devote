@@ -968,14 +968,5 @@ export function useContractCustom() {
     getPersonRol,
     createPersonOnChain,
     createAdminOnChain,
-    changePersonRol,
-    createProposal,
-    addVoter,
-    modifyVoters,
-    removeVoters,
-    addVoteType,
-    removeVoteType,
-    startVotation,
-    endVotation,
   };
 }
