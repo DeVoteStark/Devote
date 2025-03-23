@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { useParams } from "next/navigation";
-import { useAccount } from "@starknet-react/core";
 import AIAgent from "@/components/AIAgent";
 import {
   decryptData,

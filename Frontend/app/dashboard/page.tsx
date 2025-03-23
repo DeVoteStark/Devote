@@ -1,14 +1,12 @@
 "use client";
 
 import Footer from "@/components/Footer";
-import AIAgent from "@/components/AIAgent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic } from "@/interfaces/Proposal";
-import { useAccount } from "@starknet-react/core";
 import Header from "@/components/Header";
 import { useWallet } from "@/hooks/use-wallet";
 import { loginStatus } from "@/interfaces/Login";

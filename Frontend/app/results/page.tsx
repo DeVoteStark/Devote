@@ -2,13 +2,11 @@
 
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useContractCustom } from "@/hooks/use-contract";
 import { useEffect, useState } from "react";
 import { ProposalPublic } from "@/interfaces/Proposal";
-import { useAccount } from "@starknet-react/core";
 import Header from "@/components/Header";
 import { useWallet } from "@/hooks/use-wallet";
 import { loginStatus } from "@/interfaces/Login";

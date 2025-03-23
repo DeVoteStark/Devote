@@ -2,7 +2,6 @@
 
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic } from "@/interfaces/Proposal";
