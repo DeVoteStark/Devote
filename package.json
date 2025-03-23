@@ -1,0 +1,30 @@
+{
+  "name": "devote",
+  "version": "0.1.0",
+  "description": "🌍 To empower communities worldwide by providing a secure, transparent, and decentralized voting platform that fosters trust and inclusivity in decision-making processes.",
+  "scripts": {
+    "install:all": "yarn --cwd Frontend install && (cd Backend && scarb fetch)",
+    "build:frontend": "yarn --cwd Frontend build",
+    "build:backend": "cd Backend && scarb build",
+    "build:all": "yarn run build:frontend && yarn run build:backend",
+    "lint:frontend": "npm run lint --prefix Frontend",
+    "lint:backend": "echo 'No linting configured for backend'",
+    "lint:all": "npm run lint:frontend && npm run lint:backend",
+    "dev:frontend": "npm run dev --prefix Frontend",
+    "start:frontend": "npm run start --prefix Frontend",
+    "test:backend": "cd Backend && scarb test",
+    "test:all": "echo 'No test script defined for Frontend' && npm run test:backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeVoteStark/Devote.git"
+  },
+  "keywords": ["decentralized", "voting", "blockchain", "community"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DeVoteStark/Devote/issues"
+  },
+  "homepage": "https://github.com/DeVoteStark/Devote#readme"
+}
