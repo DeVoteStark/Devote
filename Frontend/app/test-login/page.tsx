@@ -1,6 +1,6 @@
 "use client";
 
-import Footer from "../components/Footer";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import {
   generateAndDeployNewWalletFromPrivateKey,
@@ -54,7 +54,7 @@ export default function TestingLoginPage() {
             >
               <PlusCircle className="mr-2 h-4 w-4" /> Generate private key
             </Button>
-            
+
             {privateKey && (
               <Button
                 className="bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"

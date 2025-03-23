@@ -1,8 +1,8 @@
-import Footer from "../components/Footer";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Header from "../components/Header";
+import Header from "@/components/Header";
 
 const activeProjects = [
   {

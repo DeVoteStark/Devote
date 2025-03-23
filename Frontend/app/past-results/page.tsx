@@ -1,13 +1,13 @@
 "use client";
 
-import Footer from "../components/Footer";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic } from "@/interfaces/Proposal";
 import { useAccount } from "@starknet-react/core";
-import Header from "../components/Header";
+import Header from "@/components/Header";
 
 const participationStats = {
   totalVoters: 50000,
@@ -58,9 +58,8 @@ export default function PastResultsPage() {
                         className="h-2.5 rounded-full"
                         style={{
                           backgroundColor: "#f7cf1d",
-                          width: `${
-                            (option.count / voting.total_voters) * 100
-                          }%`,
+                          width: `${(option.count / voting.total_voters) * 100
+                            }%`,
                         }}
                       ></div>
                     </div>

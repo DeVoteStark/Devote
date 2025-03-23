@@ -1,6 +1,6 @@
 "use client";
 
-import { SumsubVerificationStatus } from "../components/SumsubVerificationStatus";
+import { SumsubVerificationStatus } from "@/components/SumsubVerificationStatus";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 

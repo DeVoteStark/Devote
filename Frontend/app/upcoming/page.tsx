@@ -1,11 +1,11 @@
 "use client";
 
-import Footer from "../components/Footer";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useContractCustom } from "@/hooks/use-contract";
 import { useEffect, useState } from "react";
 import { ProposalPublic } from "@/interfaces/Proposal";
-import Header from "../components/Header";
+import Header from "@/components/Header";
 import { useWallet } from "@/hooks/use-wallet";
 import { loginStatus } from "@/interfaces/Login";
 

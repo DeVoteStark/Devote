@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import { useContractCustom } from "@/hooks/use-contract";
 import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { useParams } from "next/navigation";
 import { useAccount } from "@starknet-react/core";
-import AIAgent from "@/app/components/AIAgent";
+import AIAgent from "@/components/AIAgent";
 import {
   decryptData,
   encryptData,
