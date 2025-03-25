@@ -13,9 +13,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
 import { useContractCustom } from "@/hooks/use-contract";
 
+enum RoleToRoleNumber {
+  voter = 2,
+  admin = 3
+}
+
 export default function EditProposalPage({ params }: { params: { id: string } }) {
   const [proposalId, setProposalId] = useState(params.id);
-  const { addVoter } = useContractCustom();
+  const { addVoter, modifyVoters } = useContractCustom();
   const [selectedVoter, setSelectedVoter] = useState("");
   const [voterRole, setVoterRole] = useState("voter");
   const [showRoleSelection, setShowRoleSelection] = useState(false);
@@ -72,16 +77,34 @@ export default function EditProposalPage({ params }: { params: { id: string } })
     }
   };
 
-  const handleModifyVoter = () => {
-    console.log("Modifying voter:", { proposalId, selectedVoter, voterRole });
-    setSelectedVoter("");
-    setVoterRole("voter");
-    setShowRoleSelection(false);
-    toast({
-      title: "Role Changed Successfully",
-      description: `Voter's role has been updated to ${voterRole}.`,
-      duration: 3000,
-    });
+  const handleModifyVoter = async () => {
+    try {
+      if (!proposalId || !selectedVoter || !voterRole) {
+        toast({
+          title: "Error",
+          description: "Proposal ID, voter wallet and voter role must be provided.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const roleNumber = voterRole === "admin" ? RoleToRoleNumber.admin : RoleToRoleNumber.voter;
+      const result = await modifyVoters(proposalId, selectedVoter, roleNumber);
+      console.log("Voter modified result: ", result);
+      toast({
+        title: "Role Changed Successfully",
+        description: `Voter's role has been updated to ${voterRole}.`,
+        duration: 3000,
+      });
+      setShowRoleSelection(false);
+    } catch (error) {
+      console.error("Error modifying voter: ", error);
+      toast({
+        title: "Error",
+        description: "Failed to modify voter in the proposal.",
+        variant: "destructive"
+      })
+    }
   };
 
   const handleDeleteVoter = () => {
