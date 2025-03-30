@@ -1,39 +1,72 @@
-import { createUser, findUserByEmail, updateUserByEmail } from '../models/userModel.js';
-import { generateToken } from '../utils/jwt.js';
+import {
+  createUser,
+  findUserByEmail,
+  updateUserByEmail,
+} from "../models/userModel.js";
+import { generateOTP } from "../utils/generate-otp.js";
+import { generateToken } from "../utils/jwt.js";
+import sendEmail from "../utils/send-email.js";
 
 const signup = async (req, res) => {
   const { email, name, lastName, companyName, companyTitle, gender } = req.body;
   try {
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
-      return res.status(400).send('User already exists.');
+      return res.status(400).send("User already exists.");
     }
-    if(!email || !name || !lastName || !companyName || !companyTitle || !gender) return res.status(200).send('Missing fields.');
-    const user = await createUser({ email, name, lastName, companyName, companyTitle, tutorial: false, gender:gender });
+    if (
+      !email ||
+      !name ||
+      !lastName ||
+      !companyName ||
+      !companyTitle ||
+      !gender
+    )
+      return res.status(200).send("Missing fields.");
+    const user = await createUser({
+      email,
+      name,
+      lastName,
+      companyName,
+      companyTitle,
+      tutorial: false,
+      gender: gender,
+      otp: generateOTP(),
+    });
     const token = generateToken(user);
+    await sendEmail({
+      to: user.email,
+      subject: "OTP Verification",
+      text: "Welcome!",
+      html: `
+        <h1>Welcome to ${companyName}!</h1>
+        <p>Your One-Time Password (OTP) is: ${user.otp}</p>
+        <p>Please use this OTP to verify your email address and complete your registration.</p>
+      `,
+    });
     res.status(201).send({ token, user });
   } catch (error) {
-    res.status(500).send('Error creating user.');
+    res.status(500).send("Error creating user.");
   }
 };
 
 const login = async (req, res) => {
   const { email } = req.body;
   try {
-    if(!email) return res.status(200).send('No email provided.');
+    if (!email) return res.status(200).send("No email provided.");
     const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(200).send('User not found.');
+      return res.status(200).send("User not found.");
     }
     const token = generateToken(user);
     res.status(200).send({ token, user });
   } catch (error) {
-    res.status(200).send('Error logging in.');
+    res.status(200).send("Error logging in.");
   }
 };
 
 const logout = (req, res) => {
-  res.status(200).send('Logged out.');
+  res.status(200).send("Logged out.");
 };
 
 const editImage = async (req, res) => {
@@ -41,16 +74,16 @@ const editImage = async (req, res) => {
   try {
     const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(404).send("User not found.");
     }
     await updateUserByEmail(email, { image });
     res.status(200).send({
       ...user,
-      image:image,
+      image: image,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send('Error updating user.');
+    res.status(500).send("Error updating user.");
   }
 };
 
@@ -59,17 +92,17 @@ const deleteUser = async (req, res) => {
   try {
     const user = await findUserByEmail(email);
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(404).send("User not found.");
     }
     await user.remove();
-    res.status(200).send('User deleted successfully.');
+    res.status(200).send("User deleted successfully.");
   } catch (error) {
-    res.status(500).send('Error deleting user.');
+    res.status(500).send("Error deleting user.");
   }
 };
 
 const test = (req, res) => {
-  res.status(200).send('Test passed.');
+  res.status(200).send("Test passed.");
 };
 
 export { signup, login, editImage, deleteUser, logout, test };
