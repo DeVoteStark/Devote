@@ -5,6 +5,9 @@ export interface IUser extends Document {
   name: string;
   email: string;
   hashIne: string;
+  otp?: string;
+  isVerified: boolean;
+  otpExpiresAt?: Date;
   kycStatus: "pending" | "inProcess" | "rejected" | "accepted";
   kycId: string;
   secretKey: string;
@@ -16,6 +19,14 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     hashIne: { type: String, required: true },
+    otp: {
+      type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otpExpiresAt: { type: Date },
     kycStatus: {
       type: String,
       enum: ["pending", "inProcess", "rejected", "accepted"],

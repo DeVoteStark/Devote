@@ -24,6 +24,13 @@ export async function GET(
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
+    if (!user.isVerified) {
+      return NextResponse.json(
+        { message: "User not verified" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(user, { status: 200 });
   } catch (error: any) {
     console.error("Error retrieving user:", error);
