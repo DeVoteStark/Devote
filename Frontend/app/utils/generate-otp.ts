@@ -1,5 +1,5 @@
 export const generateOTP = () => {
   const otp = Math.floor(1000 + Math.random() * 9000);
-  console.log("Generated OTP: ", otp);
-  return otp;
+  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  return { otp, otpExpiresAt };
 };

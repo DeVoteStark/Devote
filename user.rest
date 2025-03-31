@@ -1,0 +1,12 @@
+GET http://localhost:3000/api/citizen/
+Content-Type: application/json
+
+
+{
+  "email": "annagu.kennedy@gmail.com",
+  "name": "sonkey",
+  "ine": 123456
+}
+
+
+

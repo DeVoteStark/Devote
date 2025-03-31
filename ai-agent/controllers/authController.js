@@ -3,9 +3,7 @@ import {
   findUserByEmail,
   updateUserByEmail,
 } from "../models/userModel.js";
-import { generateOTP } from "../utils/generate-otp.js";
 import { generateToken } from "../utils/jwt.js";
-import sendEmail from "../utils/send-email.js";
 
 const signup = async (req, res) => {
   const { email, name, lastName, companyName, companyTitle, gender } = req.body;
@@ -31,19 +29,8 @@ const signup = async (req, res) => {
       companyTitle,
       tutorial: false,
       gender: gender,
-      otp: generateOTP(),
     });
     const token = generateToken(user);
-    await sendEmail({
-      to: user.email,
-      subject: "OTP Verification",
-      text: "Welcome!",
-      html: `
-        <h1>Welcome to ${companyName}!</h1>
-        <p>Your One-Time Password (OTP) is: ${user.otp}</p>
-        <p>Please use this OTP to verify your email address and complete your registration.</p>
-      `,
-    });
     res.status(201).send({ token, user });
   } catch (error) {
     res.status(500).send("Error creating user.");

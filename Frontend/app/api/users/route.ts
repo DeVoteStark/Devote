@@ -9,6 +9,7 @@ import {
   generatePrivateKeyEncrypted,
   getFutureWalletAdressFromPrivateKey,
 } from "@/lib/starknet/createWallet";
+import { generateOTP } from "@/app/utils/generate-otp";
 
 function hashIne(ine: string): string {
   return crypto.createHash("sha256").update(ine).digest("hex");
@@ -54,11 +55,15 @@ export async function POST(req: Request) {
       "1234"
     );
 
+    const { otp, otpExpiresAt } = generateOTP();
+
     const newUser = new User({
       walletId: walletAddress,
       name,
       email,
       hashIne: hashedIne,
+      otp,
+      otpExpiresAt,
       kycStatus: "pending",
       kycId: "",
       secretKey: privateKey,
@@ -76,10 +81,9 @@ export async function POST(req: Request) {
     const sdkLink = `https://devote.site/verify?kycId=${newUser._id}&email=${emailEncoded}`;
 
     const emailService = new EmailService();
-    const subject = "Complete your KYC process";
-    const text = `Please use the following link to complete your KYC process: ${sdkLink}`;
-    const html = `<p>Please use the following link to complete your KYC process:</p>
-                  <p><a href="${sdkLink}">${sdkLink}</a></p>`;
+    const subject = "Your OTP Code";
+    const text = `Your OTP code is ${otp}. It will expire in 5 minutes.`;
+    const html = `<p>Your OTP code is <strong>${otp}</strong>. It will expire in 5 minutes.</p>`;
 
     await emailService.sendMail(newUser.email, subject, text, html);
 
