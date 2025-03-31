@@ -49,6 +49,7 @@
     "dotenv": "^16.4.7",
     "embla-carousel-react": "8.5.1",
     "express": "^4.21.2",
+    "framer-motion": "^12.5.0",
     "get-starknet-core": "^3.3.4",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
