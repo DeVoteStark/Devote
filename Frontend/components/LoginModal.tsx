@@ -31,8 +31,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const handleLogin = async () => {
     setIsLoggingIn(true);
     try {
-      const encodedEmail = encodeURIComponent(email);
-      const res = await fetch(`/api/login/${encodedEmail}`);
+      const res = await fetch(`/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!res.ok) {
         const errorData = await res.json();

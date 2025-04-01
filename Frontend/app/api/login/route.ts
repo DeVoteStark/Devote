@@ -1,16 +1,15 @@
 // api/login/[email]/route.ts
 import { NextResponse } from "next/server";
-import connectToDb from "../../../../lib/mongodb/mongodb";
-import User from "../../../../models/user";
+import connectToDb from "../../../lib/mongodb/mongodb";
+import User from "../../../models/user";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { email: string } }
-) {
+export async function POST(request: Request) {
   try {
     await connectToDb();
+    // Parsear el body de la solicitud
+    const { email } = await request.json();
 
-    const email = params.email;
+    // Validar que se recibael email
     if (!email) {
       return NextResponse.json(
         { message: "Email is required" },
