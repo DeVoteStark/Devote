@@ -5,7 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
+
 
 interface CreateUserModalProps {
   isOpen: boolean
@@ -79,6 +80,7 @@ export default function CreateUserModal({ isOpen, onClose }: CreateUserModalProp
         title: "User Created",
         description: `New user account created for ${data.user.name}`,
         duration: 3000,
+        variant: "success",
       })
       setEmail("")
       setUserId("")

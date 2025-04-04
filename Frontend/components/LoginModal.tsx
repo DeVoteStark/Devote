@@ -43,6 +43,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         toast({
           title: "Success!",
           description: "Your action was completed successfully.",
+          variant: "success",
         });
         setIsLoggingIn(false);
         return;

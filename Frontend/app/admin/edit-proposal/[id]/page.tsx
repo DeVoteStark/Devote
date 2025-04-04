@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
 import { useContractCustom } from "@/hooks/use-contract";
+import { useToast } from "@/hooks/use-toast";
 
 enum RoleToRoleNumber {
   voter = 2,
@@ -65,6 +65,7 @@ export default function EditProposalPage({ params }: { params: { id: string } })
         title: "Voter Added",
         description: "The voter has been successfully added to the proposal.",
         duration: 3000,
+        variant: "success",
       });
       setSelectedVoter("");
     } catch (error) {

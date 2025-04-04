@@ -55,6 +55,7 @@ export default function CreateProposalModal({ isOpen, onClose }: CreateProposalM
     toast({
       title: "Success!",
       description: "Your proposal has been created successfully.",
+      variant: "success",
     })
     onClose()
   }
