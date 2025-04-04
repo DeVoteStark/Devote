@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
+
 
 interface ModifyUserModalProps {
   isOpen: boolean
@@ -43,6 +44,7 @@ export default function ModifyUserModal({ isOpen, onClose }: ModifyUserModalProp
       title: "User Modified",
       description: `User role has been updated to ${role}`,
       duration: 3000,
+      variant: "success",
     })
     setEmail("")
     setUserFound(false)

@@ -1,7 +1,9 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
 import { StarknetProvider } from "@/components/providers/starknet-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Devote",
@@ -17,8 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <StarknetProvider>
         <body>
-          {children}
-          <Toaster />
+          <ToastProvider >
+            {children}
+          </ToastProvider>
+          {/* <Toaster /> */}
         </body>
       </StarknetProvider>
     </html>

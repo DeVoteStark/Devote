@@ -10,10 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/hooks/use-wallet";
 import { loginStatus } from "@/interfaces/Login";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast"
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -28,6 +28,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { connectWallet, connectionStatus } = useWallet();
   const router = useRouter();
 
+
   const handleLogin = async () => {
     setIsLoggingIn(true);
     try {
@@ -40,9 +41,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (!res.ok) {
         const errorData = await res.json();
         toast({
-          title: "Error",
-          description: errorData.message || "Failed to log in",
-          variant: "destructive",
+          title: "Success!",
+          description: "Your action was completed successfully.",
+          variant: "success",
         });
         setIsLoggingIn(false);
         return;

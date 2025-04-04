@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/hooks/use-toast"
 
 interface CreateProposalModalProps {
   isOpen: boolean
@@ -20,6 +21,8 @@ export default function CreateProposalModal({ isOpen, onClose }: CreateProposalM
   const [proposalDescription, setProposalDescription] = useState("")
   const [votingOptions, setVotingOptions] = useState([""])
   const [pdfDocument, setPdfDocument] = useState<File | null>(null)
+
+  const { toast } = useToast()
 
   const handleAddOption = () => {
     setVotingOptions([...votingOptions, ""])
@@ -49,8 +52,14 @@ export default function CreateProposalModal({ isOpen, onClose }: CreateProposalM
     setProposalDescription("")
     setVotingOptions([""])
     setPdfDocument(null)
+    toast({
+      title: "Success!",
+      description: "Your proposal has been created successfully.",
+      variant: "success",
+    })
     onClose()
   }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
