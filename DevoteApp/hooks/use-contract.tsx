@@ -835,17 +835,22 @@ export function useContractCustom() {
 
   const createAdminOnChain = async (person_id: string) => {
     if (!account) {
-      throw new Error("Account not connected");
+      throw new Error("Please connect your wallet first");
     }
-    const newContract: Contract = createContract();
-    newContract.connect(account);
-    const createUserCall = newContract.populate("create_admin", [
-      person_id,
-      account.address,
-    ]);
-    const res = await newContract.create_admin(createUserCall.calldata);
-    const result = await provider.waitForTransaction(res.transaction_hash);
-    return result;
+    try {
+      const newContract: Contract = createContract();
+      newContract.connect(account);
+      const createUserCall = newContract.populate("create_admin", [
+        person_id,
+        account.address,
+      ]);
+      const res = await newContract.create_admin(createUserCall.calldata);
+      const result = await provider.waitForTransaction(res.transaction_hash);
+      return result;
+    } catch (error) {
+      console.error("Error creating admin on chain:", error);
+      throw new Error("Failed to create admin on chain: " + (error instanceof Error ? error.message : String(error)));
+    }
   };
 
   const changePersonRol = async (walletAddress: string, new_rol: string) => {
