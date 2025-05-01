@@ -131,7 +131,7 @@ export default function Home() {
           <Link href="/">
             <div className="flex items-center space-x-2">
               <Vote className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/70">
+              <span className="text-2xl font-bold bg-clip-text gradient-text">
                 DeVote
               </span>
             </div>
@@ -204,9 +204,7 @@ export default function Home() {
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 The Future of Voting is{" "}
-                <span className="bg-clip-text text-transparent bg-linear-to-r from-primary to-secondary">
-                  Here.
-                </span>
+                <span className="bg-clip-text gradient-text">Here.</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
                 DeVote ensures transparent, secure, and verifiable elections
@@ -219,7 +217,7 @@ export default function Home() {
                 <Button
                   onClick={() => setOpenModal(true)}
                   size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white"
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   Get Started <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -554,7 +552,7 @@ export default function Home() {
             <div className="md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <Vote className="h-8 w-8 text-primary" />
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/70">
+                <span className="text-2xl font-bold bg-clip-text text-transparent gradient-text">
                   DeVote
                 </span>
               </div>
