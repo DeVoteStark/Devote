@@ -40,7 +40,7 @@
     "@starknet-io/get-starknet-core": "^4.0.7",
     "@starknet-react/chains": "^3.1.2",
     "@starknet-react/core": "^3.7.2",
-    "@tailwindcss/postcss": "^4.1.4",
+    "@tailwindcss/postcss": "^4.1.5",
     "ai": "latest",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
@@ -80,7 +80,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
     "starknet": "^6.24.1",
-    "tailwindcss": "^4.1.4",
+    "tailwindcss": "^4.1.5",
     "typescript": "^5"
   }
 }
