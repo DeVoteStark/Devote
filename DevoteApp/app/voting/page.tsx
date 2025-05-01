@@ -29,7 +29,7 @@ export default function VotingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8 text-[#f7cf1d]">
           Active Voting Projects
         </h1>
@@ -42,7 +42,7 @@ export default function VotingPage() {
               <CardHeader>
                 <CardTitle className="text-[#f7cf1d]">{project.name}</CardTitle>
               </CardHeader>
-              <CardContent className="flex-grow">
+              <CardContent className="grow">
                 <p className="text-gray-300 mb-4">{project.description}</p>
               </CardContent>
               <CardContent>

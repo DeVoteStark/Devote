@@ -50,7 +50,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="grow container mx-auto px-4 py-8">
         <div className="flex flex-wrap justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#f7cf1d] mb-4 md:mb-0">Admin Dashboard</h1>
           <div className="space-y-2 md:space-y-0 md:space-x-4 flex flex-col md:flex-row">

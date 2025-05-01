@@ -35,7 +35,7 @@ export default function Header() {
                     <Link href="/">
                         <div className="flex items-center space-x-2">
                             <Vote className="h-8 w-8 text-primary" />
-                            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/70">
                                 DeVote
                             </span>
                         </div>
