@@ -155,7 +155,7 @@ export default function EditProposalPage({ params }: { params: { id: string } })
   return (
     <div className="min-h-screen flex flex-col bg-black text-gray-100">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#f7cf1d]">Edit Proposal</h1>
           <Button onClick={handleBackToDashboard} className="h-10 px-4 py-2 bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]">
@@ -241,7 +241,7 @@ export default function EditProposalPage({ params }: { params: { id: string } })
                     id="newOption"
                     value={newOption}
                     onChange={(e) => setNewOption(e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-white flex-grow"
+                    className="bg-gray-800 border-gray-700 text-white grow"
                   />
                   <Button
                     onClick={handleAddOption}
@@ -255,7 +255,7 @@ export default function EditProposalPage({ params }: { params: { id: string } })
                 <Label>Current Options</Label>
                 {votingOptions.map((option, index) => (
                   <div key={index} className="flex items-center space-x-2">
-                    <span className="flex-grow">{option}</span>
+                    <span className="grow">{option}</span>
                     <Button
                       onClick={() => handleRemoveOption(index)}
                       className="bg-red-900 hover:bg-red-800 text-white"

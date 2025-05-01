@@ -131,7 +131,7 @@ export default function Home() {
           <Link href="/">
             <div className="flex items-center space-x-2">
               <Vote className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+              <span className="text-2xl font-bold bg-clip-text gradient-text">
                 DeVote
               </span>
             </div>
@@ -190,7 +190,7 @@ export default function Home() {
           className="absolute inset-0 -z-10 opacity-20"
           style={{ y: backgroundY }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/30 to-secondary/30" />
           <div className="h-full w-full bg-[url('/grid-pattern.svg')] bg-repeat" />
         </motion.div>
 
@@ -204,9 +204,7 @@ export default function Home() {
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 The Future of Voting is{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                  Here.
-                </span>
+                <span className="bg-clip-text gradient-text">Here.</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
                 DeVote ensures transparent, secure, and verifiable elections
@@ -219,7 +217,7 @@ export default function Home() {
                 <Button
                   onClick={() => setOpenModal(true)}
                   size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white"
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   Get Started <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -515,7 +513,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary/10 to-secondary/10">
+      <section className="py-20 bg-linear-to-br from-primary/10 to-secondary/10">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center max-w-3xl mx-auto"
@@ -554,7 +552,7 @@ export default function Home() {
             <div className="md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <Vote className="h-8 w-8 text-primary" />
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                <span className="text-2xl font-bold bg-clip-text text-transparent gradient-text">
                   DeVote
                 </span>
               </div>
@@ -789,7 +787,7 @@ export default function Home() {
 
 //   return (
 //     <div className="min-h-screen flex flex-col bg-black text-gray-100">
-//       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
+//       <main className="grow flex flex-col items-center justify-center px-4 py-8">
 //         <Card className="w-full max-w-md bg-gray-900 border-[#f7cf1d]">
 //           <CardHeader>
 //             <CardTitle className="text-2xl font-bold text-center text-[#f7cf1d]">

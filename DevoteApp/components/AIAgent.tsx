@@ -150,7 +150,7 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
       <CardHeader>
         <CardTitle className="text-[#f7cf1d]">AI Voting Assistant</CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow overflow-y-auto mb-4 space-y-4">
+      <CardContent className="grow overflow-y-auto mb-4 space-y-4">
         <div className="text-gray-400 text-center">
           Ask me anything about the candidates or the voting process!
         </div>
@@ -174,7 +174,7 @@ const AIAgent: React.FC<AIAgentProps> = ({ proposalId }) => {
             placeholder="Type your message..."
             value={input}
             onChange={handleInputChange}
-            className="flex-grow bg-gray-800 border-gray-700 text-white"
+            className="grow bg-gray-800 border-gray-700 text-white"
           />
           <Button
             type="submit"
