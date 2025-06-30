@@ -1,5 +1,12 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
+export enum KYCStatus {
+  PENDING = "pending",
+  IN_PROCESS = "inProcess",
+  REJECTED = "rejected",
+  ACCEPTED = "accepted",
+}
+
 export interface IUser extends Document {
   walletId: string;
   name: string;

@@ -7,6 +7,7 @@ import { ProposalPublic, ProposalVoteTypeStruct } from "@/interfaces/Proposal";
 import { Abi, useContract, nethermindProvider } from "@starknet-react/core";
 import { Account, Contract, RpcProvider, shortString } from "starknet";
 import { useWallet } from "./use-wallet";
+import { getDecryptedPrivateKey } from "@/lib/starknet/createWallet";
 const contractAddress =
   "0x016e87c008d458fe5f0330277d78652c744fe629b25cf542dd14bfd6f61c8652";
 
@@ -853,6 +854,39 @@ export function useContractCustom() {
     }
   };
 
+  const createAdminOnChainByDevote = async (person_id: string, walletId: string) => {
+
+    const DEVOTE_WALLET_ADDRESS = process.env.NEXT_PUBLIC_DEVOTE_PUBLIC_WALLET ?? "";
+    const DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED = process.env.NEXT_PUBLIC_DEVOTE_SECRET_KEY_ENCRYPTED ?? "";
+    const DEVOTE_WALLET_PRIVATE_KEY = getDecryptedPrivateKey(DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED, '1234');
+
+    const provider = new RpcProvider({
+      nodeUrl:
+        "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/IQNV8HbIxfgGVkxJZyazEK38KIgLQCIn",
+    });
+
+    try {
+      const devoteAccount = new Account(
+        provider,
+        DEVOTE_WALLET_ADDRESS,
+        DEVOTE_WALLET_PRIVATE_KEY
+      );
+
+      const newContract: Contract = createContract();
+      newContract.connect(devoteAccount);
+      const createUserCall = newContract.populate("create_admin", [
+        person_id,
+        walletId,
+      ]);
+      const res = await newContract.create_admin(createUserCall.calldata);
+      const result = await provider.waitForTransaction(res.transaction_hash);
+      return result;
+    } catch (error) {
+      console.error("Error creating admin on chain:", error);
+      throw new Error("Failed to create admin on chain: " + (error instanceof Error ? error.message : String(error)));
+    }
+  };
+
   const changePersonRol = async (walletAddress: string, new_rol: string) => {
     if (!account) {
       throw new Error("Account not connected");
@@ -1035,5 +1069,6 @@ export function useContractCustom() {
     startVotation,
     endVotation,
     addWhiteList,
+    createAdminOnChainByDevote,
   };
 }

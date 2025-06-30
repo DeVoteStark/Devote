@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import connectToDb from "../../../lib/mongodb/mongodb";
-import User from "../../../models/user";
-import crypto from "crypto";
+import User, { KYCStatus } from "../../../models/user";
 
-function hashIne(ine: string): string {
-  return crypto.createHash("sha256").update(ine).digest("hex");
+export interface superUserRequestType {
+  email: string;
+  fullName: string;
+  hashIne: string;
+  privateKey: string;
+  publicKey: string;
 }
 
 export async function POST(req: Request) {
   try {
-    const { email, fullName, ine, password, privateKey, publicKey } = await req.json();
+    const { email, fullName, hashIne, privateKey, publicKey } = await req.json();
 
-    if (!email || !fullName || !ine || !password || !privateKey || !publicKey) {
+    if (!email || !fullName || !hashIne || !privateKey || !publicKey) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
@@ -20,9 +23,8 @@ export async function POST(req: Request) {
 
     await connectToDb();
 
-    const hashedIne = hashIne(ine);
 
-    const existingUser = await User.findOne({ hasIne: hashedIne }).exec();
+    const existingUser = await User.findOne({ hasIne: hashIne }).exec();
     if (existingUser) {
       return NextResponse.json(
         { message: "User already exists with provided INE" },
@@ -34,16 +36,16 @@ export async function POST(req: Request) {
       walletId: publicKey,
       name: fullName,
       email,
-      hashIne: hashedIne,
+      hashIne: hashIne,
       secretKey: privateKey,
       isAdmin: true,
-      kycStatus: "approved",
+      kycStatus: KYCStatus.ACCEPTED,
     });
 
     await newUser.save();
 
     return NextResponse.json(
-      { 
+      {
         message: "Superuser created successfully",
         user: {
           email: newUser.email,
