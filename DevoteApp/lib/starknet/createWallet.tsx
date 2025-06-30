@@ -4,12 +4,14 @@ import {
   stark,
   RpcProvider,
   hash,
+  cairo,
   CallData,
   CairoOption,
   CairoOptionVariant,
   CairoCustomEnum,
 } from "starknet";
 import crypto from "crypto";
+import { createContract } from "./ETH";
 
 const algorithm = "aes-256-ecb"; // Encryption algorithm
 
@@ -83,14 +85,27 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
   pin: string,
   variable?: string
 ) => {
-  const RPC_KEY = process.env.NEXT_PUBLIC_METAMASK_RPC_SECRET_KEY ?? "";
+  const DEVOTE_WALLET_ADDRESS = process.env.NEXT_PUBLIC_DEVOTE_PUBLIC_WALLET ?? "";
+  const DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED = process.env.NEXT_PUBLIC_DEVOTE_SECRET_KEY_ENCRYPTED ?? "";
 
-  console.log("The RPC key is:", RPC_KEY);
-  // connect provider
+  const DEVOTE_WALLET_PRIVATE_KEY = getDecryptedPrivateKey(DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED, '1234');
+
   const provider = new RpcProvider({
     nodeUrl:
       "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/IQNV8HbIxfgGVkxJZyazEK38KIgLQCIn",
   });
+
+  const devoteAccount = new Account(
+    provider,
+    DEVOTE_WALLET_ADDRESS,
+    DEVOTE_WALLET_PRIVATE_KEY
+  );
+
+  const contractETH = createContract();
+  contractETH.connect(devoteAccount);
+  console.log("Devote Account", devoteAccount.address);
+  const balance = await contractETH.balance_of(devoteAccount.address);
+  console.log("Devote Account Balance", balance);
 
   //new Argent X account v0.4.0
   const argentXaccountClassHash =
@@ -117,6 +132,17 @@ export const generateAndDeployNewWalletFromPrivateKey = async (
     0
   );
   console.log("Precalculated account address=", AXcontractAddress);
+
+  contractETH.connect(devoteAccount);
+  const sendETHCall = contractETH.populate("transfer", {
+    recipient: AXcontractAddress,
+    amount: cairo.uint256(35000000000000),
+  });
+  const res = await contractETH.transfer(sendETHCall.calldata);
+  console.log("res", res);
+  console.log("Transaction hash", res.transaction_hash);
+  const resultSendETH = await provider.waitForTransaction(res.transaction_hash);
+  console.log("resultSendETH", resultSendETH);
 
   const accountAX = new Account(provider, AXcontractAddress, privateKey);
 

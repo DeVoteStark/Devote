@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import crypto from 'crypto';
+import { useWallet } from "@/hooks/use-wallet";
+import { superUserRequestType } from "../api/superuser/route";
 
 type SuperUserFormData = {
   email: string;
@@ -25,12 +27,13 @@ type SuperUserFormData = {
 };
 
 export default function SecretPage() {
-  const { createAdminOnChain, addWhiteList, vote } = useContractCustom();
+  const { createAdminOnChain, addWhiteList, vote, createAdminOnChainByDevote } = useContractCustom();
   const { getEthBalance, sendEth } = useEth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const router = useRouter();
+  const { connectWallet } = useWallet();
 
   const {
     register,
@@ -113,22 +116,25 @@ export default function SecretPage() {
 
       try {
         await generateAndDeployNewWalletFromPrivateKey(privateKey, data.password);
-        await createAdminOnChain(data.ine);
+        await connectWallet(privateKey, data.password, publicKey);
+        await createAdminOnChainByDevote(data.ine, publicKey);
 
         const hashedIne = crypto.createHash("sha256").update(data.ine).digest("hex");
+
+        const superUserRequest: superUserRequestType = {
+          email: data.email,
+          fullName: data.fullName,
+          hashIne: hashedIne,
+          privateKey: privateKey,
+          publicKey: publicKey,
+        };
 
         const response = await fetch('/api/superuser', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            email: data.email,
-            name: data.fullName,
-            walletId: publicKey,
-            hashIne: hashedIne,
-            secretKey: privateKey,
-          }),
+          body: JSON.stringify(superUserRequest),
         });
 
         if (!response.ok) {
@@ -211,7 +217,7 @@ export default function SecretPage() {
               <input
                 type="email"
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                {...register("email", { 
+                {...register("email", {
                   required: "Email is required",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -229,7 +235,7 @@ export default function SecretPage() {
               <input
                 type="text"
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                {...register("fullName", { 
+                {...register("fullName", {
                   required: "Full name is required",
                   minLength: {
                     value: 3,
@@ -247,7 +253,7 @@ export default function SecretPage() {
               <input
                 type="text"
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                {...register("ine", { 
+                {...register("ine", {
                   required: "INE is required",
                   pattern: {
                     value: /^[0-9]+$/,
@@ -265,7 +271,7 @@ export default function SecretPage() {
               <input
                 type="password"
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                {...register("password", { 
+                {...register("password", {
                   required: "Password is required",
                   minLength: {
                     value: 6,
@@ -281,9 +287,8 @@ export default function SecretPage() {
             <Button
               type="submit"
               disabled={loading}
-              className={`w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e] ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className={`w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e] ${loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
               {loading ? 'Creating...' : 'Create Superuser'}
             </Button>
