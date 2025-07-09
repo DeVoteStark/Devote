@@ -831,7 +831,7 @@ export function useContractCustom() {
     ]);
     const res = await newContract.create_new_person(createUserCall.calldata);
     const result = await provider.waitForTransaction(res.transaction_hash);
-    return result;
+    return { ...result, transaction_hash: res.transaction_hash };
   };
 
   const createAdminOnChain = async (person_id: string) => {
@@ -847,7 +847,7 @@ export function useContractCustom() {
       ]);
       const res = await newContract.create_admin(createUserCall.calldata);
       const result = await provider.waitForTransaction(res.transaction_hash);
-      return result;
+      return { ...result, transaction_hash: res.transaction_hash };
     } catch (error) {
       console.error("Error creating admin on chain:", error);
       throw new Error("Failed to create admin on chain: " + (error instanceof Error ? error.message : String(error)));
