@@ -1,5 +1,5 @@
-use core::starknet::{ContractAddress};
-use starknet::storage::{Vec, Map};
+use starknet::ContractAddress;
+use starknet::storage::{Map, Vec};
 #[derive(Drop, Copy, Serde, starknet::Store)]
 pub struct PersonProposalStruct {
     pub proposal_id: felt252,
@@ -58,8 +58,11 @@ pub struct ProposalPublic {
 }
 #[starknet::interface]
 trait IDeVote<ContractState> {
-    fn create_new_person(ref self: ContractState, person_id: felt252);
-    fn change_person_rol(ref self: ContractState, new_rol: felt252);
+    fn create_admin(ref self: ContractState, person_id: felt252, voter_wallet: ContractAddress);
+    fn create_new_person(
+        ref self: ContractState, person_id: felt252, voter_wallet: ContractAddress,
+    );
+    fn change_person_rol(ref self: ContractState, voter_wallet: ContractAddress, new_rol: felt252);
     fn get_person(self: @ContractState, connected_walled_id: ContractAddress) -> PersonPublic;
     fn get_person_rol(self: @ContractState, connected_walled_id: ContractAddress) -> felt252;
     fn get_person_proposals(
@@ -78,7 +81,8 @@ trait IDeVote<ContractState> {
         self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
     ) -> Array<ProposalVoteTypeStruct>;
     fn start_votation(ref self: ContractState, proposal_id: felt252);
-    fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252);
+    fn add_white_list(ref self: ContractState, proposal_id: felt252, secret: felt252);
+    fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252, secret: felt252);
     fn end_votation(ref self: ContractState, proposal_id: felt252);
     fn view_votation(
         self: @ContractState, proposal_id: felt252, connected_walled_id: ContractAddress,
@@ -92,20 +96,15 @@ trait IDeVote<ContractState> {
 }
 #[starknet::contract]
 mod DeVote {
-    use super::IDeVote;
-    use super::PersonProposalStruct;
-    use super::PersonPublic;
-    use super::Person;
-    use super::ProposalVoterStruct;
-    use super::ProposalVoteTypeStruct;
-    use super::Proposal;
-    use super::ProposalPublic;
-    use super::PersonIdStruct;
     use starknet::storage::{
-        StoragePointerReadAccess, StoragePointerWriteAccess, MutableVecTrait, Map, StoragePathEntry,
-        VecTrait, Vec,
+        Map, MutableVecTrait, StoragePathEntry, StoragePointerReadAccess, StoragePointerWriteAccess,
+        Vec, VecTrait,
     };
-    use core::starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address};
+    use super::{
+        IDeVote, Person, PersonIdStruct, PersonProposalStruct, PersonPublic, Proposal,
+        ProposalPublic, ProposalVoteTypeStruct, ProposalVoterStruct,
+    };
     #[storage]
     struct Storage {
         persons_ids: Vec<PersonIdStruct>,
@@ -162,31 +161,45 @@ mod DeVote {
     fn constructor(ref self: ContractState) {}
     #[abi(embed_v0)]
     impl DeVoteImpl of IDeVote<ContractState> {
-        fn create_new_person(ref self: ContractState, person_id: felt252) {
-            let wallet_id = get_caller_address();
-            let mut person = self.persons.entry(wallet_id);
+        fn create_admin(
+            ref self: ContractState, person_id: felt252, voter_wallet: ContractAddress,
+        ) {
+            let mut person = self.persons.entry(voter_wallet);
             person.id_number.write(person_id);
-            person.wallet_id.write(wallet_id);
-            person.role.write(0);
-            self
-                .emit(
-                    PersonAdded {
-                        wallet_id: person.wallet_id.read(),
-                        id_number: person.id_number.read(),
-                        role: person.role.read(),
-                    },
-                );
+            person.wallet_id.write(voter_wallet);
+            person.role.write('admin');
+
+            let person_id_struct = PersonIdStruct { wallet_id: voter_wallet, id_number: person_id };
+            self.persons_ids.append().write(person_id_struct);
+
+            self.emit(PersonAdded { wallet_id: voter_wallet, id_number: person_id, role: 'admin' });
         }
 
-        fn change_person_rol(ref self: ContractState, new_rol: felt252) {
-            let person = self.persons.entry(get_caller_address());
+        fn create_new_person(
+            ref self: ContractState, person_id: felt252, voter_wallet: ContractAddress,
+        ) {
+            let caller = get_caller_address();
+            let mut person = self.persons.entry(voter_wallet);
+            person.id_number.write(person_id);
+            person.wallet_id.write(voter_wallet);
+            person.role.write('user');
+
+            let person_id_struct = PersonIdStruct { wallet_id: voter_wallet, id_number: person_id };
+            self.persons_ids.append().write(person_id_struct);
+
+            self.emit(PersonAdded { wallet_id: voter_wallet, id_number: person_id, role: 'user' });
+        }
+
+        fn change_person_rol(
+            ref self: ContractState, voter_wallet: ContractAddress, new_rol: felt252,
+        ) {
+            let caller = get_caller_address();
+            let person = self.persons.entry(voter_wallet);
             person.role.write(new_rol);
             self
                 .emit(
                     PersonUpdated {
-                        wallet_id_signer: get_caller_address(),
-                        wallet_id: person.wallet_id.read(),
-                        role: person.role.read(),
+                        wallet_id_signer: caller, wallet_id: voter_wallet, role: new_rol,
                     },
                 );
         }
@@ -199,7 +212,7 @@ mod DeVote {
             while idx < person.proposals.len() {
                 proposals.append(person.proposals.at(idx).read());
                 idx += 1;
-            };
+            }
             return PersonPublic {
                 wallet_id: person.wallet_id.read(),
                 id_number: person.id_number.read(),
@@ -221,7 +234,7 @@ mod DeVote {
             while idx < person.proposals.len() {
                 proposals.append(person.proposals.at(idx).read());
                 idx += 1;
-            };
+            }
             return proposals;
         }
         fn create_proposal(ref self: ContractState, proposal_id: felt252, name: felt252) {
@@ -273,7 +286,7 @@ mod DeVote {
                     votation.append(vote);
                 }
                 idx += 1;
-            };
+            }
 
             let person = self.persons.entry(connected_walled_id);
             return ProposalPublic {
@@ -417,7 +430,7 @@ mod DeVote {
             while idx < proposal.type_votes.len() {
                 proposals.append(proposal.type_votes.at(idx).read());
                 idx += 1;
-            };
+            }
             return proposals;
         }
         fn start_votation(ref self: ContractState, proposal_id: felt252) {
@@ -435,7 +448,32 @@ mod DeVote {
                     );
             }
         }
-        fn vote(ref self: ContractState, proposal_id: felt252, vote_type: felt252) {
+        fn add_white_list(ref self: ContractState, proposal_id: felt252, secret: felt252) {
+            if can_modify_proposal(@self, proposal_id, 0) {
+                self
+                    .emit(
+                        GeneralEvent {
+                            function_name: 'add_white_list',
+                            type_message: 'whitelist added',
+                            wallet_id: get_caller_address(),
+                            data: secret,
+                        },
+                    );
+            } else {
+                self
+                    .emit(
+                        UnauthorizeEvent {
+                            function_name: 'add_white_list',
+                            type_error: 'unauthorize',
+                            wallet_id: get_caller_address(),
+                        },
+                    );
+            }
+        }
+
+        fn vote(
+            ref self: ContractState, proposal_id: felt252, vote_type: felt252, secret: felt252,
+        ) {
             let person = self.persons.entry(get_caller_address());
             let mut proposal = self.proposals.entry(proposal_id);
             if proposal.state.read() != 1 {
@@ -492,6 +530,15 @@ mod DeVote {
                     }
                     idx += 1;
                 }
+                self
+                    .emit(
+                        GeneralEvent {
+                            function_name: 'vote',
+                            type_message: 'vote cast',
+                            wallet_id: get_caller_address(),
+                            data: secret,
+                        },
+                    );
             }
         }
         fn end_votation(ref self: ContractState, proposal_id: felt252) {
@@ -521,7 +568,7 @@ mod DeVote {
                     votation.append(vote);
                 }
                 idx += 1;
-            };
+            }
             return votation;
         }
 
@@ -531,7 +578,7 @@ mod DeVote {
             let mut person_ids = ArrayTrait::<PersonIdStruct>::new();
             for i in 0..self.persons_ids.len() {
                 person_ids.append(self.persons_ids.at(i).read());
-            };
+            }
             person_ids
         }
 
@@ -549,9 +596,9 @@ mod DeVote {
                                 id_number: person.id_number.read(),
                             },
                         );
-                };
+                }
                 idx += 1;
-            };
+            }
             return person_list;
         }
     }
