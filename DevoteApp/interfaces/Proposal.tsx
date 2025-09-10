@@ -27,4 +27,5 @@ export interface ProposalPublic {
   has_voted: number;
   type_votes: ProposalVoteTypeStruct[];
   voter: ProposalVoterStruct;
+  file?: string;
 }
