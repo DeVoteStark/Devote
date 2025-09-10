@@ -1,71 +1,121 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateProposalModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function CreateProposalModal({ isOpen, onClose }: CreateProposalModalProps) {
-  const [proposalId, setProposalId] = useState("")
-  const [proposalTitle, setProposalTitle] = useState("")
-  const [proposalDescription, setProposalDescription] = useState("")
-  const [votingOptions, setVotingOptions] = useState([""])
-  const [pdfDocument, setPdfDocument] = useState<File | null>(null)
+export default function CreateProposalModal({
+  isOpen,
+  onClose,
+}: CreateProposalModalProps) {
+  const [proposalId, setProposalId] = useState("");
+  const [proposalTitle, setProposalTitle] = useState("");
+  const [proposalDescription, setProposalDescription] = useState("");
+  const [votingOptions, setVotingOptions] = useState([""]);
+  const [document, setDocument] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const handleAddOption = () => {
-    setVotingOptions([...votingOptions, ""])
-  }
+    setVotingOptions([...votingOptions, ""]);
+  };
 
   const handleRemoveOption = (index: number) => {
-    const newOptions = votingOptions.filter((_, i) => i !== index)
-    setVotingOptions(newOptions)
-  }
+    const newOptions = votingOptions.filter((_, i) => i !== index);
+    setVotingOptions(newOptions);
+  };
 
   const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...votingOptions]
-    newOptions[index] = value
-    setVotingOptions(newOptions)
-  }
+    const newOptions = [...votingOptions];
+    newOptions[index] = value;
+    setVotingOptions(newOptions);
+  };
 
-  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setPdfDocument(e.target.files[0])
+      setDocument(e.target.files[0]);
     }
-  }
+  };
 
-  const handleCreateProposal = () => {
-    console.log("Creating proposal:", { proposalId, proposalTitle, proposalDescription, votingOptions, pdfDocument })
-    setProposalId("")
-    setProposalTitle("")
-    setProposalDescription("")
-    setVotingOptions([""])
-    setPdfDocument(null)
-    toast({
-      title: "Success!",
-      description: "Your proposal has been created successfully.",
-      variant: "success",
-    })
-    onClose()
-  }
+  const handleCreateProposal = async () => {
+    console.log("Creating proposal:", {
+      proposalId,
+      proposalTitle,
+      proposalDescription,
+      votingOptions,
+      document,
+    });
+    const formData = new FormData();
+    // formData.append("proposalId", proposalId);
+    formData.append("title", proposalTitle);
+    formData.append("description", proposalDescription);
+    // votingOptions.forEach((option, index) =>
+    //   formData.append(`votingOption${index + 1}`, option)
+    // );
+    if (document) {
+      formData.append("file", document);
+    }
 
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/proposals", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create proposal");
+      }
+      const data = await response.json();
+      console.log("Proposal created:", data);
+
+      // If successful, reset form and close modal
+      toast({
+        title: "Success!",
+        description: "Your proposal has been created successfully.",
+        variant: "success",
+      });
+      setProposalId("");
+      setProposalTitle("");
+      setProposalDescription("");
+      setVotingOptions([""]);
+      setDocument(null);
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 text-white">
         <DialogHeader>
-          <DialogTitle className="text-[#f7cf1d]">Create New Proposal</DialogTitle>
+          <DialogTitle className="text-[#f7cf1d]">
+            Create New Proposal
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -88,7 +138,9 @@ export default function CreateProposalModal({ isOpen, onClose }: CreateProposalM
           </div>
           <div className="space-y-2">
             <Label htmlFor="proposalDescription">Description</Label>
-            <p className="text-sm text-gray-400">Explain the context of your project to the people voting!</p>
+            <p className="text-sm text-gray-400">
+              Explain the context of your project to the people voting!
+            </p>
             <Textarea
               id="proposalDescription"
               value={proposalDescription}
@@ -105,7 +157,10 @@ export default function CreateProposalModal({ isOpen, onClose }: CreateProposalM
                   onChange={(e) => handleOptionChange(index, e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white"
                 />
-                <Button onClick={() => handleRemoveOption(index)} variant="destructive">
+                <Button
+                  onClick={() => handleRemoveOption(index)}
+                  variant="destructive"
+                >
                   Remove
                 </Button>
               </div>
@@ -115,22 +170,29 @@ export default function CreateProposalModal({ isOpen, onClose }: CreateProposalM
             </Button>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="pdfUpload">Upload PDF Document</Label>
+            <Label htmlFor="docUpload">Upload Document</Label>
             <Input
-              id="pdfUpload"
+              id="docUpload"
               type="file"
-              accept=".pdf"
-              onChange={handlePdfUpload}
+              accept=".pdf, .doc, .docx"
+              onChange={handleDocUpload}
               className="bg-gray-800 border-gray-700 text-white"
             />
-            {pdfDocument && <p className="text-sm text-gray-400">File selected: {pdfDocument.name}</p>}
+            {document && (
+              <p className="text-sm text-gray-400">
+                File selected: {document.name}
+              </p>
+            )}
           </div>
-          <Button onClick={handleCreateProposal} className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]">
-            Create Proposal
+          <Button
+            onClick={handleCreateProposal}
+            disabled={isLoading}
+            className="w-full bg-[#f7cf1d] text-black hover:bg-[#e5bd0e]"
+          >
+            {isLoading ? "Creating..." : "Create Proposal"}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

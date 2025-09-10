@@ -95,6 +95,34 @@ export default function VotingStationPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="grid gap-6 md:grid-cols-1">
+              {proposal?.file && (
+                <Card className="bg-gray-900 border-[#f7cf1d] max-w-2xl mx-auto">
+                  <CardHeader>
+                    <CardTitle className="text-[#f7cf1d]">
+                      Proposal Context
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Download or view the supporting document for this proposal
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <a
+                      href={proposal.file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block bg-[#f7cf1d] text-black font-medium px-4 py-2 rounded hover:bg-[#e5bd0e] transition"
+                    >
+                      View Proposal Context (
+                      {proposal.file.endsWith(".pdf")
+                        ? ".pdf"
+                        : proposal.file.endsWith(".docx")
+                        ? ".docx"
+                        : ".doc"}
+                      )
+                    </a>
+                  </CardContent>
+                </Card>
+              )}
               <Card className="bg-gray-900 border-[#f7cf1d] max-w-2xl mx-auto">
                 <CardHeader>
                   <CardTitle className="text-[#f7cf1d]">
