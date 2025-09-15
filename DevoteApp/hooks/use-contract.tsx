@@ -858,7 +858,13 @@ export function useContractCustom() {
 
     const DEVOTE_WALLET_ADDRESS = process.env.NEXT_PUBLIC_DEVOTE_PUBLIC_WALLET ?? "";
     const DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED = process.env.NEXT_PUBLIC_DEVOTE_SECRET_KEY_ENCRYPTED ?? "";
-    const DEVOTE_WALLET_PRIVATE_KEY = getDecryptedPrivateKey(DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED, '1234');
+    const DEVOTE_WALLET_ENCRYPTION_KEY = process.env.NEXT_PUBLIC_DEVOTE_ENCRYPTION_KEY;
+
+    if (!DEVOTE_WALLET_ENCRYPTION_KEY) {
+      throw new Error("NEXT_PUBLIC_DEVOTE_ENCRYPTION_KEY environment variable is required");
+    }
+
+    const DEVOTE_WALLET_PRIVATE_KEY = getDecryptedPrivateKey(DEVOTE_WALLET_PRIVATE_KEY_ENCRYPTED, DEVOTE_WALLET_ENCRYPTION_KEY);
 
     const provider = new RpcProvider({
       nodeUrl:

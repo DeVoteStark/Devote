@@ -73,9 +73,11 @@ function CreatePassword() {
 
   const handleConfirm = async () => {
     try {
-      // Llamar a la función para desplegar la wallet usando el secretKey obtenido del usuario
+      // Deploy wallet with user's password
       console.log("Deploying wallet with secretKey: ", secretKey);
-      await generateAndDeployNewWalletFromPrivateKey(secretKey, "1234");
+      // Note: In this flow, we need to get the actual password from the user
+      // This appears to be legacy KYC flow - password should be collected from user
+      await generateAndDeployNewWalletFromPrivateKey(secretKey, password);
 
       // Luego, crear el admin en cadena utilizando el userId
       if (userId) {
