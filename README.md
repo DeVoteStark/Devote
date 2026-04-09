@@ -33,7 +33,7 @@ DeVote addresses these challenges with an innovative, blockchain-powered platfor
 
 ### 1. *Local Governance and Community Projects*
 
-- *Example:* The community of Tamarindo is set to be the first testers of DeVote, using the platform to decide on local matters such as  event hosting, renovations, or budget allocations.
+- *Examples:* The community of Tamarindo is set to be the first testers of DeVote, using the platform to decide on local matters such as  event hosting, renovations, or budget allocations.
 - *Impact:* Increased community involvement, better planning, reduced administrative costs, and enhanced transparency in decision-making.
 
 ### 2. *Non-Profit Organizations and NGOs*
