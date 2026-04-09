@@ -13,7 +13,7 @@
 Traditional voting systems face numerous challenges, including:
 
 - *Lack of Trust:* Concerns about election fraud, tampering, and lack of transparency undermine confidence in results.
-- *High Costs:* Organizing and securing traditional voting processes is often expensive and resource-intensive.
+- *High Cost:* Organizing and securing traditional voting processes is often expensive and resource-intensive.
 - *Accessibility Barriers:* Physical voting locations and paper-based systems exclude many participants due to geographical or mobility constraints.
 - *Privacy Issues:* Ensuring voter anonymity while maintaining security is a persistent challenge.
 - *Low Engagement:* Without incentives or modernized systems, many people are disengaged from the voting process.
