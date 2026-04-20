@@ -28,3 +28,6 @@ export interface ProposalPublic {
   type_votes: ProposalVoteTypeStruct[];
   voter: ProposalVoterStruct;
 }
+export interface ProposalWithFile extends ProposalPublic{
+  file?:string;
+}
