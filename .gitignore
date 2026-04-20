@@ -3,6 +3,7 @@ DevoteApp/package-lock.json
 DevoteApp/dist/
 DevoteApp/.next/
 DevoteApp/.env
+DevoteApp/data/
 .vscode/
 node_modules
 yarn.lock

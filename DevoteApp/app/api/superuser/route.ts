@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import connectToDb from "../../../lib/mongodb/mongodb";
-import User, { KYCStatus } from "../../../models/user";
+import User from "../../../models/user";
+
+// [KYC RESTORE] Uncomment when restoring KYC functionality
+// import User, { KYCStatus } from "../../../models/user";
 
 export interface superUserRequestType {
   email: string;
@@ -39,7 +42,8 @@ export async function POST(req: Request) {
       hashIne: hashIne,
       secretKey: privateKey,
       isAdmin: true,
-      kycStatus: KYCStatus.ACCEPTED,
+      // [KYC RESTORE] Use KYCStatus.ACCEPTED when restoring KYC functionality
+      // kycStatus: KYCStatus.ACCEPTED,
     });
 
     await newUser.save();
