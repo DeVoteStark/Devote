@@ -1,6 +1,6 @@
 # DeVote: A Decentralized Voting Platform
 
-## Vision
+## Vision bomboclat
 
 🌍 To empower communities worldwide by providing a secure, transparent, and decentralized voting platform that fosters trust and inclusivity in decision-making processes.
 
