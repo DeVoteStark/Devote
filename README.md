@@ -1,10 +1,10 @@
 # DeVote: A Decentralized Voting Platform
 
 ## Vision
-
+make it work
 🌍 To empower communities worldwide by providing a secure, transparent, and decentralized voting platform that fosters trust and inclusivity in decision-making processes.
 
-## Mission
+## Mission 
 
 🎯 To leverage cutting-edge blockchain technology to create a user-friendly and accessible voting system that eliminates barriers, enhances participation, and ensures the integrity of community-driven decisions.
 
