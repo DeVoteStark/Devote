@@ -1,7 +1,6 @@
 # DeVote: A Decentralized Voting Platform
 
-## Vision
-make it work
+
 🌍 To empower communities worldwide by providing a secure, transparent, and decentralized voting platform that fosters trust and inclusivity in decision-making processes.
 
 
