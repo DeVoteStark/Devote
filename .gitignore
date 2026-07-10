@@ -1,8 +1,8 @@
-Frontend/node_modules/
-Frontend/package-lock.json
-Frontend/dist/
-Frontend/.next/
-Frontend/.env
+DevoteApp/node_modules/
+DevoteApp/package-lock.json
+DevoteApp/dist/
+DevoteApp/.next/
+DevoteApp/.env
 .vscode/
 node_modules
 yarn.lock
