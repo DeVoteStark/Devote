@@ -15,6 +15,13 @@ export interface IUser extends Document {
   hashIne: string;
   secretKey: string;
   
+  // Email verification fields
+  isEmailVerified: boolean;
+  emailVerificationCode: string;
+  emailVerificationExpires: Date;
+  emailVerificationAttempts: number;
+  lastVerificationEmailSent: Date;
+  
   // [KYC RESTORE] Uncomment when restoring KYC functionality
   // kycStatus: "pending" | "inProcess" | "rejected" | "accepted";
   // kycId: string;
@@ -28,6 +35,13 @@ const UserSchema = new Schema<IUser>(
     hashIne: { type: String, required: true },
     secretKey: { type: String, required: true },
     
+    // Email verification fields
+    isEmailVerified: { type: Boolean, default: false },
+    emailVerificationCode: { type: String, default: "" },
+    emailVerificationExpires: { type: Date },
+    emailVerificationAttempts: { type: Number, default: 0 },
+    lastVerificationEmailSent: { type: Date },
+    
     // [KYC RESTORE] Uncomment when restoring KYC functionality
     // kycStatus: {
     //   type: String,
@@ -39,6 +53,9 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+// Index for faster verification code lookups
+UserSchema.index({ emailVerificationCode: 1 });
+UserSchema.index({ email: 1, emailVerificationCode: 1 });
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
