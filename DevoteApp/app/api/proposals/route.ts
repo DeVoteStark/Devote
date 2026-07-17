@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import connectToDb from "../../../lib/mongodb/mongodb";
 import Proposal from "../../../models/proposal";
+//import {put} from "@vercel/blob";
+import {uploadToBlob} from "../../../lib/blob";
 
 export async function POST(req: Request) {
     try {
-      const { title, description, file } = await req.json();
+      //parse FormData
+      const formData= await req.formData();
+      const title = formData.get("title") as string;
+      const description= formData.get("description") as string;
+      const file  = formData.get("file") as File| null;
   
       if (!title || !description) {
         return NextResponse.json(
@@ -12,10 +18,16 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
-  
+      
+      let fileUrl: string| null = null;
+
+      if(file){
+        //Upload the file to Vercel Blob
+        fileUrl=await uploadToBlob(file);
+      }
       await connectToDb();
   
-      const newProposal = new Proposal({ title, description, file });
+      const newProposal = new Proposal({ title, description, file: fileUrl });
       await newProposal.save();
   
       return NextResponse.json(

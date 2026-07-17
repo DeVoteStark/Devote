@@ -14,6 +14,7 @@ async function connectToDb() {
       bufferCommands: false,
     };
     await mongoose.connect(MONGO_URI, opts);
+    await mongoose.connection.asPromise();
     console.log("Connected to MongoDB");
     return mongoose;
   } catch (err) {

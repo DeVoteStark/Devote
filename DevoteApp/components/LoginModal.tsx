@@ -41,9 +41,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (!res.ok) {
         const errorData = await res.json();
         toast({
-          title: "Success!",
-          description: "Your action was completed successfully.",
-          variant: "success",
+          title: "Login Failed",
+          description: errorData.message||"Invalid email or password",
+          variant: "destructive",
         });
         setIsLoggingIn(false);
         return;

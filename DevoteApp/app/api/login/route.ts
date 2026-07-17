@@ -1,4 +1,4 @@
-// api/login/[email]/route.ts
+// api/login/route.ts
 import { NextResponse } from "next/server";
 import connectToDb from "../../../lib/mongodb/mongodb";
 import User from "../../../models/user";
